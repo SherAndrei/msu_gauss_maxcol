@@ -35,9 +35,9 @@ $(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
 $(BIN) $(OBJ):
 	$(MKDIR) $@
 
-.PHONY: clean debug release
+.PHONY: clear debug release
 
-clean:
+clear:
 	$(RMDIR) $(OBJ) $(BIN)
 
 debug: CFLAGS += -g -O0 -DDEBUG

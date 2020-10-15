@@ -5,12 +5,13 @@
 #include <math.h>
 
 //Найти корни и записать в answer
-int solve(const int dim, double* matrix, double* answer)
+void solve(const int n, const int m, double* A, double* b, double* X)
 {
-	(void) dim;
-	(void) matrix;
-	(void) answer;
-	return 0;
+	(void) n;
+	(void) m;
+	(void) A;
+	(void) b;
+	(void) X;
 }
 
 double  norm(const double* vector, const int length)
