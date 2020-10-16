@@ -5,19 +5,19 @@
 #include <stdio.h>
 
 //заполнить матрицу с помощью формулы номер formula_name
-void fill(double* matrix, const int dim, const int formula_name, const char* const filename, int* errno)
+void fill(double* matrix, const int matrix_dim, const int block_dim, const int formula_name, const char* const filename, int* errno)
 {
     switch (formula_name)
     {
-	case 0: formula_zero(matrix, dim, filename, errno);
+	case 0: formula_zero(matrix, matrix_dim, block_dim, filename, errno);
 		break;
-    case 1: formula_one(matrix, dim);
+    case 1: formula_one(matrix, matrix_dim, block_dim);
         break;
-    case 2: formula_two(matrix, dim);
+    case 2: formula_two(matrix, matrix_dim, block_dim);
         break;
-    case 3: formula_three(matrix, dim);
+    case 3: formula_three(matrix, matrix_dim, block_dim);
         break;
-    case 4: formula_four(matrix, dim);
+    case 4: formula_four(matrix, matrix_dim, block_dim);
         break;
     default:
         break;

@@ -38,18 +38,19 @@ int main(int argc, const char* argv[])
 	if(print_value > matr_dim || print_value < 0)
 		error(4);
 
-	matrix = (double*)malloc(matr_dim * matr_dim * sizeof(double)); 
+	// выделяем память под матрицу и под правый вектор
+	matrix = (double*)malloc((matr_dim * matr_dim + matr_dim) * sizeof(double)); 
 	if(matrix == NULL)
             error(5);
 
 	if(formula == 0 && argc == 6) {
-		fill(matrix, matr_dim, 0, argv[5], &errno);
+		fill(matrix, matr_dim, block_dim, 0, argv[5], &errno);
 		if(errno > 0) {
 			free(matrix);
 			error(errno);   
 		}
 	} else if ((formula > 0 || formula < 5) && argc == 5) {
-		fill(matrix, matr_dim, formula, NULL, NULL);
+		fill(matrix, matr_dim, block_dim, formula, NULL, NULL);
 	} else {
 		free(matrix);
 		error(1);
@@ -85,7 +86,7 @@ int main(int argc, const char* argv[])
 				);
 
 	if(formula == 0) {
-		fill(matrix, matr_dim, 0, argv[5], &errno);
+		fill(matrix, matr_dim, block_dim, 0, argv[5], &errno);
 		if(errno > 0) {
 			free(matrix);
         	free(answer);
@@ -93,7 +94,7 @@ int main(int argc, const char* argv[])
 			error(errno);   
 		}
 	} else 
-		fill(matrix, matr_dim, formula, NULL, NULL);
+		fill(matrix, matr_dim, block_dim, formula, NULL, NULL);
 
 	fill_right_part(matrix, right_part, matr_dim);
 

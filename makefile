@@ -15,6 +15,7 @@ CFLAGS := -mfpmath=sse -fstack-protector-all -W -Wall -Wextra -Wunused -Wcast-al
 		  -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long  \
 		  -Wcast-qual -Wno-suggest-attribute=format-Werror -Wpedantic -I$(INCLUDE)
 LIBS   := -lm
+SANIT  := -fsanitize=address
 
 #Variables
 EXE  := $(BIN)/main
@@ -27,7 +28,7 @@ OBJS := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
 # -c flag says to generate the object file
 
 $(EXE): $(OBJS) | $(BIN)
-	$(CC) $^ -o $@ $(LIBS)
+	$(CC) $^ -o $@ $(LIBS) $(SANIT)
 
 $(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS) 
