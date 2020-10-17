@@ -23,9 +23,9 @@ void print_matrix(const double* A, const int w, const int h, const int m, const 
 	//количество в последнем блоке
 	int last_i, last_j;
 	// количество блоков размера m в высоту
-	int kh = nh / m;
+	int kh = h / m;
 	// количество блоков размера m в ширину
-	int kw = nw / m;
+	int kw = w / m;
 	// длина/высота остаточного блока
 	int lh = nh - kh * m;
 	// длина/высота остаточного блока
@@ -48,6 +48,7 @@ void print_matrix(const double* A, const int w, const int h, const int m, const 
 		}
 		prn_val_v -= last_i;
 	}
+	putchar('\n');
 }
 
 // //Печать матрицы, ответа и времени

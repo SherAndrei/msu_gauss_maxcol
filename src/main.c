@@ -51,23 +51,18 @@ int main(int argc, const char* argv[])
 		error(1);
 	}
 	
-	B = (double*)malloc(n * 1 * sizeof(double));
-	if(B == NULL) {
-		free(A);
-		error(5);
-	}
-	fill_right_part(A, B, n);
+	B = A + n * n;
+	fill_right_part(A, B, n, m);
 
 	X = (double*)malloc(n * 1 * sizeof(double));
 	if(X == NULL) {
 		free(A);
-		free(B);
 		error(5);
 	}
 
 	//Печатаем то, что было до
 	print_matrix(A, n, n, m, r);
-	// print_matrix(B, 1, n, r);
+	print_matrix(B, n, 1, m, r);
 
 	//Засекаем время и решаем
 	// time_t start, end;
@@ -85,7 +80,6 @@ int main(int argc, const char* argv[])
 	// 	if(errno > 0) {
 	// 		free(A);
     //     	free(X);
-	// 		free(B);
 	// 		error(errno);   
 	// 	}
 	// } else 
@@ -97,6 +91,5 @@ int main(int argc, const char* argv[])
 	// print_difference(n, X);
 
 	free(A);
-	free(B);
 	free(X);
 }

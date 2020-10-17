@@ -1,4 +1,4 @@
 #pragma once
 
-void fill(double* matrix, const int matrix_dim, const int block_dim, const int formula_name, const char* const filename, int* errno);
-void fill_right_part(const double* matrix, double* right_part, const int dim);
+void fill(double* A, const int n, const int m, const int s, const char* const filename, int* errno);
+void fill_right_part(double* A, double* B, const int n, const int m);
