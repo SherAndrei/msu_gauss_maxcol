@@ -29,7 +29,7 @@ void fill_right_part(const double* matrix, double* right_part, const int dim)
 {
 	(void) matrix;
 	(void) right_part;
-	(void) matrix;
+	(void) dim;
     // for(int i = 0; i < dim; i++) {
     //     for(int k = 0; k < (dim + 1)/2; k++) {
     //         //так как нумерация с нуля ~~~\/ не прибавляем 1

@@ -1,0 +1,1 @@
+(( n = 8 )); for ((m = 1; m <= $n; m++)); do echo "m = $m" ; ./bin/main $n $m $n 4; done
