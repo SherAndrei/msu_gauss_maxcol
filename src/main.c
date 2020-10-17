@@ -16,6 +16,7 @@ int main(int argc, const char* argv[])
 	int errno = 0;
 	int matr_dim, block_dim, print_value, formula;
 	double *matrix = NULL, *right_part = NULL, *answer = NULL;
+
 //	char* filename;
 	printf("Usage: ");
 	for(int i = 1; i < argc; i++) 
@@ -32,7 +33,7 @@ int main(int argc, const char* argv[])
 	if(matr_dim < 0) 
 		error(2);
 
-	if(block_dim > matr_dim || block_dim < 0)
+	if(block_dim > matr_dim || block_dim <= 0)
 		error(3);
 
 	if(print_value > matr_dim || print_value < 0)

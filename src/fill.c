@@ -27,10 +27,13 @@ void fill(double* matrix, const int matrix_dim, const int block_dim, const int f
 //заполнить правую часть с помощью формулы из условия
 void fill_right_part(const double* matrix, double* right_part, const int dim)
 {
-    for(int i = 0; i < dim; i++) {
-        for(int k = 0; k < (dim + 1)/2; k++) {
-            //так как нумерация с нуля ~~~\/ не прибавляем 1
-            right_part[i] += Matrix(i, 2*k);
-        }
-    }
+	(void) matrix;
+	(void) right_part;
+	(void) matrix;
+    // for(int i = 0; i < dim; i++) {
+    //     for(int k = 0; k < (dim + 1)/2; k++) {
+    //         //так как нумерация с нуля ~~~\/ не прибавляем 1
+    //         right_part[i] += Matrix(i, 2*k);
+    //     }
+    // }
 }
