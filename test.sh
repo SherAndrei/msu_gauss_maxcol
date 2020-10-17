@@ -1,1 +1,1 @@
-(( n = 8 )); for ((m = 1; m <= $n; m++)); do echo "m = $m" ; ./bin/main $n $m $n 4; done
+(( n = 10, r = 6, s = 1 )); for ((m = 1; m <= $n; m++)); do  ./bin/main $n $m $r $s; done

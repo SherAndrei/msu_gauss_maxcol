@@ -6,11 +6,13 @@
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 
 // Печать матрицы соответственно условию
-void print_matrix(const double* A, const int n, const int hor, const int m, const int r)
+// A size : h x w (rows x cols)
+void print_matrix(const double* A, const int w, const int h, const int m, const int r)
 {
-	(void) hor;
-	// количество печатаемых блоков
-	int n1 = MIN(n, r);
+	// количество печатаемых элементов в ширину
+	int nw = MIN(w, r);
+	// количество печатаемых элементов в высоту
+	int nh = MIN(h, r);
 	// размер очередного блока
 	int mv, mh;
 	// количество печатаемых данных в данном блоке
@@ -20,21 +22,25 @@ void print_matrix(const double* A, const int n, const int hor, const int m, cons
 	int i, j, p, q;
 	//количество в последнем блоке
 	int last_i, last_j;
-	// количество блоков размера n
-	int k = n / m;
+	// количество блоков размера m в высоту
+	int kh = nh / m;
+	// количество блоков размера m в ширину
+	int kw = nw / m;
 	// длина/высота остаточного блока
-	int l = n - k * m;
+	int lh = nh - kh * m;
+	// длина/высота остаточного блока
+	int lw = nw - kw * m;
 
-	for(i = 0; i * m < n1; i++) {
-		last_i = i < k ? m : l;
+	for(i = 0; i * m < nh; i++) {
+		last_i = i < kh ? m : lh;
 		mv = MIN(last_i, prn_val_v);
 		for(p = 0; p < mv; p++) {
 			prn_val_h = r;
-			for(j = 0; j * m < n1; j++) {
-				last_j = j < k ? m : l;
+			for(j = 0; j * m < nw; j++) {
+				last_j = j < kw ? m : lw;
 				mh = MIN(last_j, prn_val_h);
 				for(q = 0; q < mh; q++) {
-					printf(" %10.3e", *a(p, q));
+					printf(" %10.3e", *(A + (i) * nw * m + (j) * last_i * m  + (p) * last_j + (q)));
 				}
 				prn_val_h -= last_j;
 			}
