@@ -69,7 +69,12 @@ int main(int argc, const char* argv[])
 	// start = clock();
 	// solve(n, m, A, B, X);
 	// end = clock();
-    
+
+	// printf("Solved:\n");
+	// print_matrix(A, n, n, m, r);
+	// print_matrix(B, n, 1, m, r);
+	// print_matrix(X, n, 1, m, r);
+
 	//Печатаем результат
 	// print_all(A, X, n,
 				// r, ((float)(end - start))/ CLOCKS_PER_SEC                

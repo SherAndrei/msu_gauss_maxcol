@@ -27,7 +27,7 @@ void fill(double* matrix, const int matrix_dim, const int block_dim, const int f
 //заполнить правую часть с помощью формулы из условия
 void fill_right_part(double* A, double* B, const int n, const int m)
 {
-	int i, j, p, q, last_i, last_j;
+	int i, j, p, q, av, ah;
 	// количество блоков размера n
 	int k = n / m;
 	// длина/высота остаточного блока
@@ -43,15 +43,15 @@ void fill_right_part(double* A, double* B, const int n, const int m)
 
 	//идем по строчкам
 	for(i = 0; i * m < n; i++) {
-		last_i = i < k ? m : l;
-		for(p = 0; p < last_i; p++) {
+		av = i < k ? m : l;
+		for(p = 0; p < av; p++) {
 			B[i * m + p] = 0;
 			// теперь по столбикам
 			// имеем счетчик, который помогает
 			// нам определеить четность
 			for(j = 0, cnt = 0; j * m < n; j++) {
-				last_j = j < k ? m : l;
-				for(q = 0; q < last_j; q++, cnt++) {
+				ah = j < k ? m : l;
+				for(q = 0; q < ah; q++, cnt++) {
 					if(cnt % 2 == 0)
 						B[i * m + p] += *a(p, q); 
 				}

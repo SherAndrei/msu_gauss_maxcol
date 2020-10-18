@@ -21,7 +21,7 @@ void print_matrix(const double* A, const int w, const int h, const int m, const 
 	//для циклов
 	int i, j, p, q;
 	//количество в последнем блоке
-	int last_i, last_j;
+	int av, ah;
 	// количество блоков размера m в высоту
 	int kh = h / m;
 	// количество блоков размера m в ширину
@@ -32,21 +32,21 @@ void print_matrix(const double* A, const int w, const int h, const int m, const 
 	int lw = nw - kw * m;
 
 	for(i = 0; i * m < nh; i++) {
-		last_i = i < kh ? m : lh;
-		mv = MIN(last_i, prn_val_v);
+		av = i < kh ? m : lh;
+		mv = MIN(av, prn_val_v);
 		for(p = 0; p < mv; p++) {
 			prn_val_h = r;
 			for(j = 0; j * m < nw; j++) {
-				last_j = j < kw ? m : lw;
-				mh = MIN(last_j, prn_val_h);
+				ah = j < kw ? m : lw;
+				mh = MIN(ah, prn_val_h);
 				for(q = 0; q < mh; q++) {
-					printf(" %10.3e", *(A + (i) * nw * m + (j) * last_i * m  + (p) * last_j + (q)));
+					printf(" %10.3e", *(A + (i) * nw * m + (j) * av * m  + (p) * ah + (q)));
 				}
-				prn_val_h -= last_j;
+				prn_val_h -= ah;
 			}
 			putchar('\n');
 		}
-		prn_val_v -= last_i;
+		prn_val_v -= av;
 	}
 	putchar('\n');
 }

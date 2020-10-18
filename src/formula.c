@@ -15,7 +15,7 @@ void formula_zero(double* A, const int n, const int m,
 		return;
 	}
 
-	int i, j, p, q, last_i, last_j;
+	int i, j, p, q, av, ah;
 	// количество блоков размера n
 	int k = n / m;
 	// длина/высота остаточного блока
@@ -23,11 +23,11 @@ void formula_zero(double* A, const int n, const int m,
 	int counter = 0;
 
 	for(i = 0; i * m < n; i++) {
-		last_i = i < k ? m : l;
-		for(p = 0; p < last_i; p++) {
+		av = i < k ? m : l;
+		for(p = 0; p < av; p++) {
 			for(j = 0; j * m < n; j++) {
-			last_j = j < k ? m : l;
-				for(q = 0; q < last_j; q++) {
+			ah = j < k ? m : l;
+				for(q = 0; q < ah; q++) {
 					if(fscanf(inp, "%lf", a(p, q)) == 1) 
 						counter++;
 					else break;
@@ -43,18 +43,18 @@ void formula_zero(double* A, const int n, const int m,
 //Формула 1 из условия
 void formula_one(double* A, const int n, const int m)
 {
-	int i, j, p, q, last_i, last_j;
+	int i, j, p, q, av, ah;
 	// количество блоков размера n
 	int k = n / m;
 	// длина/высота остаточного блока
 	int l = n - k * m;
 
 	for(i = 0; i * m < n; i++) {
-		last_i = i < k ? m : l;
+		av = i < k ? m : l;
 		for(j = 0; j * m < n; j++) {
-			last_j = j < k ? m : l;
-			for(p = 0; p < last_i; p++) {
-				for(q = 0; q < last_j; q++) {
+			ah = j < k ? m : l;
+			for(p = 0; p < av; p++) {
+				for(q = 0; q < ah; q++) {
 					*a(p, q) = n - MAX( i * m + p + 1, j * m + q + 1) + 1;
 				}
 			}
@@ -64,18 +64,18 @@ void formula_one(double* A, const int n, const int m)
 //Формула 2 из условия
 void formula_two(double* A, const int n, const int m)
 {
-	int i, j, p, q, last_i, last_j;
+	int i, j, p, q, av, ah;
 	// количество блоков размера n
 	int k = n / m;
 	// длина/высота остаточного блока
 	int l = n - k * m;
 
 	for(i = 0; i * m < n; i++) {
-		last_i = i < k ? m : l;
+		av = i < k ? m : l;
 		for(j = 0; j * m < n; j++) {
-			last_j = j < k ? m : l;
-			for(p = 0; p < last_i; p++) {
-				for(q = 0; q < last_j; q++) {
+			ah = j < k ? m : l;
+			for(p = 0; p < av; p++) {
+				for(q = 0; q < ah; q++) {
 					*a(p, q) = MAX( i * m + p + 1, j * m + q + 1);
 				}
 			}
@@ -85,18 +85,18 @@ void formula_two(double* A, const int n, const int m)
 //Формула 3 из условия
 void formula_three(double* A, const int n, const int m)
 {
-	int i, j, p, q, last_i, last_j;
+	int i, j, p, q, av, ah;
 	// количество блоков размера n
 	int k = n / m;
 	// длина/высота остаточного блока
 	int l = n - k * m;
 
 	for(i = 0; i * m < n; i++) {
-		last_i = i < k ? m : l;
+		av = i < k ? m : l;
 		for(j = 0; j * m < n; j++) {
-			last_j = j < k ? m : l;
-			for(p = 0; p < last_i; p++) {
-				for(q = 0; q < last_j; q++) {
+			ah = j < k ? m : l;
+			for(p = 0; p < av; p++) {
+				for(q = 0; q < ah; q++) {
 					*a(p, q) = abs( i * m + p - (j * m + q));
 				}
 			}
@@ -106,18 +106,18 @@ void formula_three(double* A, const int n, const int m)
 //Формула 4 из условия
 void formula_four(double* A, const int n, const int m)
 {
-	int i, j, p, q, last_i, last_j;
+	int i, j, p, q, av, ah;
 	// количество блоков размера n
 	int k = n / m;
 	// длина/высота остаточного блока
 	int l = n - k * m;
 
 	for(i = 0; i * m < n; i++) {
-		last_i = i < k ? m : l;
+		av = i < k ? m : l;
 		for(j = 0; j * m < n; j++) {
-			last_j = j < k ? m : l;
-			for(p = 0; p < last_i; p++) {
-				for(q = 0; q < last_j; q++) {
+			ah = j < k ? m : l;
+			for(p = 0; p < av; p++) {
+				for(q = 0; q < ah; q++) {
 					*a(p,q) = fabs( 1. / (i * m + p + j * m + q + 1));
 				}
 			}
