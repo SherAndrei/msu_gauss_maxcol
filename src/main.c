@@ -21,7 +21,7 @@ int main(int argc, const char* argv[])
 	printf(" Usage: ");
 	for(int i = 1; i < argc; i++) 
 		printf("[%s] ", argv[i]);
-	printf("\n\n");
+	printf("\n");
 
     if(!((argc == 5 || argc == 6) &&
 		(sscanf(argv[1], "%d", &n) == 1) &&
@@ -85,7 +85,7 @@ int main(int argc, const char* argv[])
 	// } else 
 	// 	fill(A, n, m, s, NULL, NULL);
 
-	// fill_B(A, B, n);
+	// fill_right_part(A, B, n, m);
 
 	// print_residual(A, B, n, X);
 	// print_difference(n, X);

@@ -1,1 +1,4 @@
-(( n = 500, r = 5, s = 3 )); for ((m = 0; m <= $n; m+=100)); do  ./bin/main $n $m $r $s; done
+(( n = 10, r = 10, s = 1 ));     \
+for ((m = 1; m <= $n; m += 1));  \
+	 do  ./bin/main $n $m $r $s; \
+done
