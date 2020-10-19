@@ -7,10 +7,11 @@
 
 // Печать матрицы соответственно условию
 // A size : h x w (rows x cols)
-void print_matrix(const double* A, const int w, const int h, const int m, const int r)
+// A_{i,j} size: av * ah
+void print_matrix(const double* A, const int v, const int h, const int m, const int r)
 {
 	// количество печатаемых элементов в ширину
-	int nw = MIN(w, r);
+	int nv = MIN(v, r);
 	// количество печатаемых элементов в высоту
 	int nh = MIN(h, r);
 	// размер очередного блока
@@ -25,22 +26,22 @@ void print_matrix(const double* A, const int w, const int h, const int m, const 
 	// количество блоков размера m в высоту
 	int kh = h / m;
 	// количество блоков размера m в ширину
-	int kw = w / m;
+	int kv = v / m;
 	// длина/высота остаточного блока
 	int lh = nh - kh * m;
 	// длина/высота остаточного блока
-	int lw = nw - kw * m;
+	int lv = nv - kv * m;
 
 	for(i = 0; i * m < nh; i++) {
 		av = i < kh ? m : lh;
 		mv = MIN(av, prn_val_v);
 		for(p = 0; p < mv; p++) {
 			prn_val_h = r;
-			for(j = 0; j * m < nw; j++) {
-				ah = j < kw ? m : lw;
+			for(j = 0; j * m < nv; j++) {
+				ah = j < kv ? m : lv;
 				mh = MIN(ah, prn_val_h);
 				for(q = 0; q < mh; q++) {
-					printf(" %10.3e", *(A + (i) * nw * m + (j) * av * m  + (p) * ah + (q)));
+					printf(" %10.3e", *(A + (i) * h * m + (j) * av * m  + (p) * ah + (q)));
 				}
 				prn_val_h -= ah;
 			}

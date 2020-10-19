@@ -2,36 +2,38 @@
 #include <stdlib.h>
 // a size: av * ah 
 // b size: bv * bh 
-void basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, double * c)
+int basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, double * c)
 {
 	int i, j, k;
+	double sum;
 	if(bv != ah) {
-		//!!! free(c)
-		c = (void*) 0;
-		return;
+		return -1;
 	}
 	for(i = 0; i < av; i++)	
 		for(j = 0; j < bh; j++) {
-			c[i * bh + j] = 0;
+			sum = 0;
 			for(k = 0; k < ah; k++)
-				c[i * bh + j] += a[i * ah + k] * b[k * bh + j];
+				sum += a[i * ah + k] * b[k * bh + j];
+			c[i * bh + j] = sum;
 		}	
+	return 0;
 }
 
 // a size: av * ah 
 // b size: bv * bh 
 // разница в том, что теперь мы во время цикла работаем больше, чем с одним элементом
 // в данной функции получаем одновременно 4 c_{ij}
-void conv_basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, double * c)
+int conv_basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, double * c)
 {
 	int r, t, q;
 	double sum;
 	//ближайшее четное, меньше, чем соответствующие
-	int av2 = (av & (-1));
-	int bh2 = (bh & (-1));
+	int av2 = (av & (~1));
+	int bh2 = (bh & (~1));
 	// для вышеописанной логики
 	double c00, c10, c01, c11;
-
+	if(ah != bv)
+		return -1;
 	//Зануляем c
 	for(r = 0; r < av; r ++)
 		for(t = 0; t < bh; t ++)
@@ -55,21 +57,24 @@ void conv_basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, d
 	// повторяем процесс для последнего столбца и строчки
 	// так, как делали раньше
 	if(av2 < av) {
-		sum = 0;
-		for(t = 0; t < bh; t++) {
-			for (q = 0; q < ah; q ++)
-				sum += a[av2 * ah + q] * b[q * bh + t];
-			c[av2 * bh + t] += sum;
-		}
+		for(r = av2; r < av; r++)	
+			for(t = 0; t < bh; t++) {
+				sum = 0;
+				for(q = 0; q < ah; q++)
+					sum += a[r * ah + q] * b[q * bh + t];
+				c[r * bh + t] = sum;
+			}	
 	}
 	if(bh2 < bh) {
-		sum = 0;
-		for(r = 0; r < av; r++) {
-			for(q = 0; q < ah; q++)
-				sum += a[r * ah + q] * b[q * bh + bh2];
-			c[r * bh2 + bh] += sum;
-		}
+		for(r = 0; r < av; r++)	
+			for(t = bh2; t < bh; t++) {
+				sum = 0;
+				for(q = 0; q < ah; q++)
+					sum += a[r * ah + q] * b[q * bh + t];
+				c[r * bh + t] = sum;
+		}	
 	}
+	return 0;
 }
 
 double* create_array(FILE* input, int num_of_elems)
@@ -96,12 +101,15 @@ int main()
     FILE* inp;
 	int av, ah, bv, bh;
     inp = fopen("a.txt", "r");
+	if(inp == NULL) {
+		printf("Cannot open file!\n");
+		return -1;
+	}
 	if(fscanf(inp, "%d%d", &av, &ah) != 2) {
 		printf("Error dimensions A!\n");
 		fclose(inp);
 		return -1;
 	} 
-	printf("%d %d \n", av, ah);
     double* A = create_array(inp, av * ah);
 
 	fclose(inp);
@@ -113,12 +121,15 @@ int main()
 		fclose(inp);
 		return -1;
 	} 
+	
     double* B = create_array(inp, bv * bh);
 	fclose(inp);
 
 	double* C = (double*)malloc(av * bh * sizeof(double));
-    print_matrix(A, av, ah);
-    print_matrix(B, bv, bh);
+    printf("%d %d \n", av, ah);
+	print_matrix(A, av, ah);
+    printf("%d %d \n", bv, bh);
+	print_matrix(B, bv, bh);
 
 	basic_multiply(A, av, ah, B, bv, bh, C);
 	printf("Basic:\n");

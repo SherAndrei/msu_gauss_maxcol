@@ -1,3 +1,3 @@
 #pragma once
 
-void error(int error);
+int error(int error);

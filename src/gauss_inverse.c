@@ -16,6 +16,15 @@ static void fill_error(double* A, double* err, const int n)
         err[i] = fabs(A[i]) * eps;
 }
 
+// сделать единичной matr
+void make_identity(double* matr, const int dim)
+{
+	int i, j;
+	for(i = 0; i < dim; i++) 
+		for(j = 0; j < dim; j++)
+			matr[i*dim + j] = ( i == j );
+}
+
 #define A(i,j) A[(i) * n + (j)]
 #define E(i,j) A_inversed[(i) * n + (j)]
 #define ERROR(i,j) error[(i) * n + (j)]
@@ -24,16 +33,17 @@ int gauss_inverse(double * A, double* A_inversed, const int n)
 {
 	//матрица погрешностей
 	double error[ n * n ];
-	fill_error(A, error, n);
 	// итераторы
 	int i, j, k; 
 	// максимальный элемент по столбцу
-	double max;
+	double max = 0.;
 	// строчка и столбец с максимальным элементом
-	int max_i, max_j;
+	int max_i = 0., max_j = 0.;
 	// коэффициент 
-	double c;
+	double c = 0.;
 
+	fill_error(A, error, n * n);
+	
 	//идем по столбцам
 	for(j = 0; j < n; j++) {
 
@@ -78,7 +88,7 @@ int gauss_inverse(double * A, double* A_inversed, const int n)
         	for(k = j; k < n; k++) {
 	    	    A(j, k) /= c;
 	    	    E(j, k) /= c;
-				ERROR(j,k) /= c;
+				// ERROR(j,k) /= fabs(c);
         	}
 		}
 

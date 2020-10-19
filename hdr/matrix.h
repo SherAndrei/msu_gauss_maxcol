@@ -7,5 +7,5 @@
 // Элемент i вектора B
 #define B(i) (A + n * n + (i))
 
-
 double* alloc_matrix(const int length, const int width);
+void free_matrix(double* matrix);

@@ -25,18 +25,16 @@ int conv_basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, do
 	int r, t, q;
 	double sum;
 	//ближайшее четное, меньше, чем соответствующие
-	int av2 = (av & (-1));
-	int bh2 = (bh & (-1));
+	int av2 = (av & (~1));
+	int bh2 = (bh & (~1));
 	// для вышеописанной логики
 	double c00, c10, c01, c11;
-
-	if(bv != ah) {
+	if(ah != bv)
 		return -1;
-	}
 	//Зануляем c
 	for(r = 0; r < av; r ++)
 		for(t = 0; t < bh; t ++)
-			c[r * bh + t ] = 0.;
+			c[r * bh + t] = 0;
 
 	for(r = 0; r < av2; r += 2)
 		for(t = 0; t < bh2; t += 2) {
@@ -56,24 +54,25 @@ int conv_basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, do
 	// повторяем процесс для последнего столбца и строчки
 	// так, как делали раньше
 	if(av2 < av) {
-		sum = 0.;
-		for(t = 0; t < bh; t++) {
-			for (q = 0; q < ah; q ++)
-				sum += a[av2 * ah + q] * b[q * bh + t];
-			c[av2 * bh + t] += sum;
-		}
+		for(r = av2; r < av; r++)	
+			for(t = 0; t < bh; t++) {
+				sum = 0;
+				for(q = 0; q < ah; q++)
+					sum += a[r * ah + q] * b[q * bh + t];
+				c[r * bh + t] = sum;
+			}	
 	}
 	if(bh2 < bh) {
-		sum = 0.;
-		for(r = 0; r < av; r++) {
-			for(q = 0; q < ah; q++)
-				sum += a[r * ah + q] * b[q * bh + bh2];
-			c[r * bh2 + bh] += sum;
-		}
+		for(r = 0; r < av; r++)	
+			for(t = bh2; t < bh; t++) {
+				sum = 0;
+				for(q = 0; q < ah; q++)
+					sum += a[r * ah + q] * b[q * bh + t];
+				c[r * bh + t] = sum;
+		}	
 	}
 	return 0;
 }
-
 // m - размер блока
 int block_multiply(double *a, double *b, double*c, int n, int m)
 {

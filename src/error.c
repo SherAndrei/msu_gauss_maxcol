@@ -1,8 +1,7 @@
 #include "error.h"
 #include <stdio.h>
-#include <stdlib.h>
 
-void error(int error)
+int error(int error)
 {
 	switch (error)
 	{
@@ -45,7 +44,7 @@ void error(int error)
 	}
 
 	default:
-		return;
+		return 0;;
 	}
-	exit(EXIT_FAILURE);
+	return -1;
 }

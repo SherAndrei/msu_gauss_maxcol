@@ -7,7 +7,6 @@
 #include "print.h"
 #include "fill.h"
 #include "solve.h"
-#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -28,51 +27,52 @@ int main(int argc, const char* argv[])
 		(sscanf(argv[2], "%d", &m) == 1) &&
 		(sscanf(argv[3], "%d", &r) == 1) &&
 		(sscanf(argv[4], "%d", &s) == 1)))
-			error(1);
+			return error(1);
 
-	if(n < 0)           error(2);
-	if(m > n || m <= 0) error(3);
-	if(r > n || r < 0)  error(4);
+	if(n < 0)           return error(2);
+	if(m > n || m <= 0) return error(3);
+	if(r > n || r < 0)  return error(4);
 
 	// выделяем память под матрицу и под правый вектор
-	A = (double*)malloc((n * n + n) * sizeof(double)); 
-	if(A == NULL) error(5);
+	A = alloc_matrix(n, n + 1); 
+	if(A == NULL) return error(5);
 
 	if(s == 0 && argc == 6) {
 		fill(A, n, m, 0, argv[5], &errno);
 		if(errno > 0) {
-			free(A);
-			error(errno);   
+			free_matrix(A);
+			return error(errno);   
 		}
 	} else if ((s > 0 || s < 5) && argc == 5) {
 		fill(A, n, m, s, NULL, NULL);
 	} else {
-		free(A);
-		error(1);
+		free_matrix(A);
+		return error(1);
 	}
 	
 	B = A + n * n;
 	fill_right_part(A, B, n, m);
 
-	X = (double*)malloc(n * 1 * sizeof(double));
+	X = alloc_matrix(n, 1);
 	if(X == NULL) {
-		free(A);
-		error(5);
+		free_matrix(A);
+		return error(5);
 	}
 
 	//Печатаем то, что было до
-	print_matrix(A, n, n, m, r);
-	print_matrix(B, n, 1, m, r);
+	// print_matrix(A, n, n, m, r);
+	// print_matrix(B, n, 1, m, r);
 
 	//Засекаем время и решаем
 	// time_t start, end;
 	// start = clock();
-	// solve(n, m, A, B, X);
+	if(solve(n, m, A, B, X) == 0) {
+	printf("Solved:\n");
+	print_matrix(A, n, n, m, r);
+	// print_matrix(B, n, 1, m, r);
+	}
 	// end = clock();
 
-	// printf("Solved:\n");
-	// print_matrix(A, n, n, m, r);
-	// print_matrix(B, n, 1, m, r);
 	// print_matrix(X, n, 1, m, r);
 
 	//Печатаем результат
@@ -94,7 +94,8 @@ int main(int argc, const char* argv[])
 
 	// print_residual(A, B, n, X);
 	// print_difference(n, X);
-
-	free(A);
-	free(X);
+	printf("========================================\n");
+	free_matrix(A);
+	free_matrix(X);
+	return 0;
 }
