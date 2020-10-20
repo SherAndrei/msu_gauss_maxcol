@@ -23,59 +23,40 @@ double  norm(const double* A, const int n)
     return max;
 }
 
-//Поменять местами элемент lhs и rhs
-static void swap(double* lhs, double* rhs) 
-{
-    double temp = *lhs;
-    *lhs = *rhs;
-    *rhs = temp;
-}
-
-// поменять местами блок lhs и rhs
-static void swap_block(double * lhs, double *rhs, int m)
-{
-	int i, j;
-	for(i = 0; i < m; i++)
-		for(j = 0; j < m; j++) {
-			swap(&(lhs[i*m + j]), &(rhs[i*m + j]));
-		}
-}
-
-// заполнить одну матрицу другой
-static void cpy(double* source, int av, int ah, double *dest)
+void copy(double* source, double* dest, int n)
 {
 	int i;
-	for(i = 0; i < av * ah; i++)
+	for(i = 0; i < n; i++) 
 		dest[i] = source[i];
 }
-
-static void extract(double* lhs,  double* rhs, int v, int h)
-{
-	int i;
-	for(i = 0; i < v * h; i++)
-		lhs[i] -= rhs[i];
-}
-
-#define LOG 0
-#define OK 0
 
 //Найти корни и записать в answer
 int solve(const int n, const int m, double* A, double* B, double* X)
 {
-	//итераторы
-	int i, j, q, cnt = 0;
-	// размер блока av * ah
-	int av, ah, qv, qh;
-	// количество блоков размера m
-	int k = n / m;
-	// длина/высота остаточного блока
-	int l = n - k * m;
-	//вспомогательные матрицы
+	//
+	int i = 0, j = 0, r = 0, q = 0;
+	// вспомогательные матрицы
 	double *V1, *V2, *Vmin;
-	//максимальная норма
-	double min = 0., temp = 0.;
-	// позиции блока с макс нормой
+	// указатель на текущий блок
+	double *pa, *pb;
+	// указатель на очередной блок в столбце/в строчке
+	double *pi, *pj;
+	// размер текущего блока av * ah
+	int av = 0, ah = 0;
+	// количество блоков
+	int k = n / m;
+	// остаток
+	int l = n - k * m;
+	// погрешность
+	double ERROR = norm(A, n) * 1e-16;
+	// минимальная норма обратной матрицы
+	double min = 0.;
+	// строчка с минимальной матрицей
 	int min_i = 0;
+	// счетчик необратимых матриц в столбце
+	int c = 0;
+	// текущая норма
+	double current = 0.;
 
 	if((V1 = alloc_matrix(m, m)) == NULL) 
 		return error(5);
@@ -89,118 +70,105 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 		return error(5);
 	}
 
-
-	//идем по блоковым столбцам
-	for(j = 0; j * m < n; j++) {
-		// A_{j,j}
+	for(j = 0; j * m < n; j++)
+	{
+		// A_{j,j} square!
 		av = ah = j < k ? m : l;
-		cpy(A(j,j), av, ah, V1);
-		make_identity(V2, av);
-		if(gauss_inverse(V1, V2, av) == 0) {
-			min   = norm(V2, av);
+		pa = A + j * n * m + j * av * m;
+
+		// A_{j,j} --> V1
+		// V_min = (A_{j,j})^(-1)
+		// min = ||V_min||
+		copy(pa, V1, av * ah);
+		make_identity(Vmin, ah);
+		if(gauss_inverse(V1, Vmin, av, ERROR) == 0) {
+			min   = norm(Vmin, av);
 			min_i = j;
-		} else cnt ++;
-		// for j+1, j
-		// if av == ah == k && l != 0 => (i + 1) * m < n
-		// if av == ah == k && l == 0 => (i + 0) * m < n
-		// if av == ah == l && l != 0 => (i + 0) * m < n
-		// if av == ah == l && l == 0 not possible
-		// for(i = j; (i + (av != l) - (l == 0)) * m < n; i++) {
-		for(i = j + 1; (i + 1) * m < n; i++) {
-			// pa = A(i,j);
-			// A_{i,j} --> V1
-			cpy(A(i,j), av, ah, V1);
+		} else c++;
+
+		// i = j + 1, ..., k - 1 
+		// A_{i, j} --> V1, V2 = (A_{i,j})^(-1)
+		// if ||V2|| < min Vmin = V2, min = ||V2||
+		for(i = j + 1; i * m + l < n; i++) {
+			pi = A + i * n * m + j * av * m;
+
+			copy(pi, V1, av * ah);
 			make_identity(V2, av);
-			// V2 = V1^(-1)
-			if(gauss_inverse(V1, V2, av) == 0) {
-#if 0
-				print_matrix(V1, av, av, 1, av);
-				print_matrix(V2, av, av, 1, av);
-#endif
-				temp = norm(V2, av);
-				// print_matrix(V2, av, ah, 1, av);
-				if(temp < min) {
-					// V2 --> Vmin
-					cpy(V2, av, ah, Vmin);
-					min = temp;
+			if(gauss_inverse(V1, V2, av, ERROR) == 0) {
+				current = norm(V2, av);
+				if(fabs(current - min) < ERROR) {
+					copy(V2, Vmin, av * ah);
+					min   = current;
 					min_i = i;
 				}
-				// min = ||Vmin||
-			} else cnt++;
+			} else c++;
 		}
-		if(cnt == k + (j == k) - j) {
+		// if all in column noninvertable return
+		if(c == k - j + (av == l)) {
 			free_matrix(V1);
 			free_matrix(V2);
 			free_matrix(Vmin);
-			printf("Algorithm inaplicable\n");
 			return -1;
 		}
-		// I_min_i <-> I_j
+
+		// I_min_i <--> I_j
 		if(min_i != j) {
-			for(i = j; (i + 1)* m < n; i++)
-				swap_block(A(j,i), A(min_i, i), av);
-			swap(&B[min_i], &B[j]);
-# if LOG
-			printf("Swap %d and %d:\n", min_i, j);
-			print_matrix(A, n, n, m, n);
-# endif
-		}
-		// ||A_{j,j}|| != 0
-		// A_{j,j}^(-1)*(I_j)
-		qv = av;
-#if OK
-		make_identity(A(j,j), ah);
-		for(q = j + 1; q * m < n; q++) {
-#elif OK - 1 
-		for(q = j; q * m < n; q++) {
-#endif
-			qh = q < k ? m : l;
-			// A(j, q) --> V1
-			cpy(A(j,q), qv, qh, V1);
-			// V2 = Vmin * V1
-			if(conv_basic_multiply(Vmin, av, ah, V1, qv, qh, V2) == -1)
-			 printf("you are wrong at A(j, q)!\n\n");	
-#if LOG
-			print_matrix(V2, av, qh, 1, av);
-#endif
-			// V2 --> A(j, q)
-			cpy(V2, av, qh, A(j, q));
-		}
-		// разделим правую часть
-		// B --> V1
-		cpy(B, qv, 1, V1);
-		// V2 = Vmin * V1
-		if(conv_basic_multiply(Vmin, av, ah, V1, qv, 1, V2) == -1)
-			printf("you are wrong at B!\n\n");
-		// V2 --> B
-		cpy(V2, qv, 1, B);
-#if LOG
-		printf("Multiply %d line by:\n", j);
-		print_matrix(Vmin, av, ah, 1, av);
-		// print_matrix(A, n, n, m, n);
-#endif		
-		// A(j,j) = E
-		// A(i, q) -= A(i, j) * A(j, q) 
-		for(i = j + 1; i * m < n; i++) {
-			qv = i < k ? m : l;
-			// A(i,j) --> V1
-			cpy(A(i,j), qv, ah, V1);
-			for(q = j; q * m < n; q++) {
-				qh = q < k ? m : l;
-				if(conv_basic_multiply(V1, qv, ah, A(j, q), av, qh, V2) == -1)
-					printf("you are wrong at A(i,j)!\n\n");
-				extract(A + i * n * m + q * qh * m, V2, qv, qh);	
+			for(i = 0; i * m < n; i++) {
+				pi = A + min_i * n * m + i * m * m;
+				pj = A + j * n * m + i * m * m;
+				for(r = 0; r < m * m; r++) {
+					current = pi[r];
+					pi[r]   = pj[r];
+					pj[r]   = current;			
+				}
 			}
-#if LOG	
-			printf("Multiply %d line by:\n", j);
-			print_matrix(V2, qv, qh, 1, av);
-			printf("and extract from %d line:\n", i);
-			print_matrix(A, n, n, m, n);
-#endif
 		}
+
+		//V_min * (A_{j,j}, A_{j,j+1},...,A_{j,k+1},B_{j})
+		for(i = j; i * m < n; i++) {
+			r = (i < k) ? m : l;
+			pi = A + j * n * m + i * av * m; 
+			copy(pi, V1, av * r);
+			conv_basic_multiply(Vmin, av, ah, V1, av, r, V2);
+			copy(V2, pi, av * r);
+		}
+		pb = B + j * m;
+		copy(pb, V1, av * 1);
+		conv_basic_multiply(Vmin, av, ah, V1, av, 1, V2);
+		copy(V2, pb, av * 1);
+		
+
+		// A_{ i, c } = A_{ i, c } - A_{ i, j } x A_{ j, c }
+		//      pa    =     pa     -     pi     x     pj 
+		// идем вниз по столбцу
+		for(i = j + 1; i * m < n; i++) {
+			q = (i < k) ? m : l;
+			pi = A + i * n * m + j * q * m;  
+			// теперь по каждой строчке
+			for(c = j; c * m < n; c++) {
+				ah = (c < k) ? m : l;
+				pa = A + i * n * m + c * q * m;
+				pj = A + j * n * m + c * q * m;
+				
+				conv_basic_multiply(pi, q, m, pj, m, ah, V1);
+				for(r = 0; r < q * ah; r++) {
+					pa[r] -= V1[r];
+				}
+			}
+			// print_matrix(A, n, n, m, r);
+			pa = B + i * m;
+			pj = B + j * m;
+			conv_basic_multiply(pi, q, m, pj, m, 1, V2);
+			for(r = 0; r < q; r++) {
+				pa[r] -= V2[r];
+			} 
+		}
+
 		min = 0.;
-		cnt = 0;
+		min_i = 0;
+		c = 0;
 	}
+
 	// матрица теперь верхнедиагональная
 	(void) X;
 

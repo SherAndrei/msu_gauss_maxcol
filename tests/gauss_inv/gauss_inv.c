@@ -2,6 +2,22 @@
 #include <stdlib.h>
 #include <math.h>
 
+// столбцовая норма матрицы
+double  norm(const double* A, const int n)
+{
+	int i, j;
+	double max = 0, current;
+	for(i = 0; i < n; i++) {
+		current = 0.;
+		for(j = 0; j < n; j++) {
+			current += fabs(A[i * n + j]);
+		}
+		if(current > max)
+			max = current;
+	}
+    return max;
+}
+
 //Считываем первый элемент с файла (размерность) и возвращаем его
 int get_dim(FILE* input)
 {
@@ -59,27 +75,21 @@ void swap(double* lhs, double* rhs)
 
 #define eps 1e-16
 
-void fill_error(double* A, double* err, const int n)
-{
-	for (int i = 0; i < n; i++)
-        err[i] = fabs(A[i]) * eps;
-}
-
 #define A(i,j) A[(i) * n + (j)]
 #define E(i,j) A_inversed[(i) * n + (j)]
-#define ERROR(i,j) error[(i) * n + (j)]
+
+#define LOG 0
 
 int gauss_inverse(double * A, double* A_inversed, const int n)
 {
-	//матрица погрешностей
-	double error[ n * n ];
-	fill_error(A, error, n);
 	// итераторы
 	int i, j, k; 
 	// максимальный элемент по столбцу
 	double max, current;
 	// строчка и столбец с максимальным элементом
-	int max_i, max_j;
+	int max_i;
+
+	double ERROR = norm(A, n) * eps;
 	// коэффициент 
 	double c;
 
@@ -90,19 +100,17 @@ int gauss_inverse(double * A, double* A_inversed, const int n)
 		// и соответстенную строчку
 		max = fabs(A(j,j));
 		max_i = j;
-		max_j = j;
 
 		// ищем максимальный элемент в столбце
 		// и строчку с ним
 		for(i = j; i < n; i++) {
 			if(fabs(A(i,j)) > max) {
 				max_i = i;
-				max_j = j;
 				max   = A(i,j);
 			}
 		}
 
-		if(fabs(max) <= ERROR(max_i, max_j)) {
+		if(fabs(max) <= ERROR) {
             return -1;
 		}
 
@@ -113,26 +121,28 @@ int gauss_inverse(double * A, double* A_inversed, const int n)
 			for(i = j; i < n; i++) {
 				swap(&(A(j,i)), &(A(max_i, i)));			
 				swap(&(E(j,i)), &(E(max_i, i)));			
-				swap(&(ERROR(j,i)), &(ERROR(max_i, i)));
 			}
+#if LOG
 			printf("Swap %d and %d:\n", max_i, j);
 			print_concat(A,A_inversed, n);
+#endif
 		}
 		//Так как элемент a_jj на диагонали != 0, то
         //разделим j уравнение на него  
         c = A(j,j);
-		if(fabs(c - 1) > ERROR(j,j)) {
+		if(fabs(c - 1) > ERROR) {
 			for(k = 0; k < j; k++) {
 				E(j, k) /= c;
-				// ERROR(j,k) /= c;
 			} 
         	for(k = j; k < n; k++) {
 	    	    A(j, k) /= c;
 	    	    E(j, k) /= c;
-				ERROR(j,k) /= c;
         	}
+			ERROR /= fabs(c);
+#if LOG
 			printf("Divide %d line by %lf:\n", j, c);
 			print_concat(A, A_inversed, n);
+#endif
 		}
 
 		// a_jj = 1
@@ -140,17 +150,19 @@ int gauss_inverse(double * A, double* A_inversed, const int n)
         // умноженную на соответствующий коэфф c, чтобы получить нули в столбце 
 		for(i = j + 1; i < n; i++) {
 			c = A(i, j);
-			if(fabs(c) > ERROR(i,j)) {
+			if(fabs(c) > ERROR) {
 				for(k = 0; k < j; k++) {
 					E(i, k) -= c * E(j,k);
 				}
 				for(k = j; k < n; k++) {
 					A(i, k) -= c * A(j,k);
 					E(i, k) -= c * E(j,k);
-					ERROR(i,k) += fabs(c)*ERROR(j, k);
 				}
+				ERROR += fabs(c) * ERROR;
+#if LOG
 				printf("Multiply %d line by %lf and extract from %d line:\n", j, c, i);
 				print_concat(A, A_inversed, n);
+#endif
 			}
 		}
 	}
@@ -161,12 +173,14 @@ int gauss_inverse(double * A, double* A_inversed, const int n)
 	for(j = n - 1; j >= 0; j--) {
 		for(i = 0; i < j; i++) {
 			c = A(i,j);
-			if(fabs(c) > ERROR(i,j)) {
+			if(fabs(c) > ERROR) {
 				for(k = 0; k < n; k++)
 					E(i,k) -= c * E(j,k);
 				A(i,j) = 0; 
+#if LOG
 				printf("Multiply %d line by %lf and extract from %d line:\n", j, c, i);
 				print_concat(A, A_inversed, n);
+#endif
 			}
 		}
 	}

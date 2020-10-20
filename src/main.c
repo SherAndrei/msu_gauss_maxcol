@@ -64,15 +64,17 @@ int main(int argc, const char* argv[])
 	// print_matrix(B, n, 1, m, r);
 
 	//Засекаем время и решаем
-	// time_t start, end;
-	// start = clock();
+	time_t start, end;
+	start = clock();
 	if(solve(n, m, A, B, X) == 0) {
-	printf("Solved:\n");
-	print_matrix(A, n, n, m, r);
-	// print_matrix(B, n, 1, m, r);
+		printf("Solved:\n");
+		print_matrix(A, n, n, m, r);
+		print_matrix(B, n, 1, m, r);
+	} else {
+		printf("Algorithm is inaplicable\n");
 	}
-	// end = clock();
-
+	end = clock();
+	printf("Time of solving : %6.3f sec\n", ((float)(end - start))/ CLOCKS_PER_SEC);
 	// print_matrix(X, n, 1, m, r);
 
 	//Печатаем результат
