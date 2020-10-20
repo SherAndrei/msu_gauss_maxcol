@@ -218,3 +218,5 @@ int main()
     fclose(input);
     return 0;
 }
+
+#undef LOG

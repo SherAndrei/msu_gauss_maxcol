@@ -1,3 +1,3 @@
 #pragma once
 
-int error(int error);
+int error(const int error);

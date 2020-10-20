@@ -1,13 +1,13 @@
 #include "error.h"
 #include <stdio.h>
 
-int error(int error)
+int error(const int error)
 {
 	switch (error)
 	{
 	case 1: {
-		perror("Wrong terminal parameters!\n"
-				"Correct input: n m r s (filename)\n"
+		perror("Wrong arguments!\n"
+				"Correct usage: n m r s (filename)\n"
 				"\t n - matrix dim       \t(1 ...  )\n"
 				"\t m - block dim        \t(1 ... n)\n"
 				"\t r - printing value   \t(0 ... n)\n"

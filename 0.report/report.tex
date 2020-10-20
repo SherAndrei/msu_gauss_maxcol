@@ -1,0 +1,227 @@
+\documentclass[12pt]{article}
+ 
+%Russian-specific packages
+%--------------------------------------
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english, russian]{babel}
+%--------------------------------------
+
+%Math-specific packages
+%--------------------------------------
+\usepackage{nicematrix}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%--------------------------------------
+
+\title{Нахождение корней 
+	линейной системы уравнения
+	с помощью метода Гаусса с 
+	нахождением максимального элемента 
+	по столбцу} 
+\author{Шерстобитов Андрей \\
+		 332 группа}
+\begin{document}
+	\maketitle
+\newpage	
+	\tableofcontents
+	
+\newpage
+	\section{Постановка задачи}
+
+	\quad Пусть дана матрица $A$ размера $n \times n$, вектор $b$ размера $n$. 
+	Требуется найти решение линейной системы $Ax = b$, используя метод
+	Гаусса с выбором максимального элмента по столбцу.
+	
+	\section{Алгоритм}
+		\subsection{Разбиение матрицы на блоки}
+		\quad Разобьем матрицу $A$ на блоки размера $m \times m$ 
+		по формуле $ n = k \cdot m + l $:
+		\[ \begin{pNiceArray}{CCCCC|C}
+			A_{1,1}^{m \times m}   & A_{1,2}^{m \times m} 	& \ldots & A_{1,k}^{m \times m}   & A_{1,k+1}^{m \times l} 	  & B^{m}_{1}   \\  
+			A_{2,1}^{m \times m}   & A_{2,2}^{m \times m} 	& \ldots & A_{2,k}^{m \times m}   & A_{2,k+1}^{m \times l} 	  & B^{m}_{2}   \\  
+			\ldots 				   & \Ldots 			  	&  	     &  				      & \ldots 				  	  & \ldots	    \\  
+			A_{k,1}^{m \times m}   & A_{k,2}^{m \times m} 	& \ldots & A_{k,k}^{m \times m}   & A_{k,k+1}^{m \times l} 	  & B^{m}_{k}   \\  
+			A_{k+1,1}^{l \times m} & A_{k+1,2}^{l \times m} & \ldots & A_{k+1,k}^{l \times m} & A_{k+1, k+1}^{l \times l} & B^{l}_{k+1} \\  
+		\end{pNiceArray} \]
+		
+		\subsection{Прямой ход}
+
+		\begin{enumerate}
+			
+			\item \label{alg:reverse} $ A^{m \times m}_{1,1} \rightarrow V_{1} $, обычным методом Гаусса 
+			для нахождения обратной матрицы $V_{1} | V_{min} \Rightarrow V_{min} = V_{1}^{-1}
+			=  (A^{m \times m}_{1,1})^{-1}$ и разрушаем $V_{1}$, $min = \| V_{min} \|  $ 
+			
+			Если $ \nexists (A^{m \times m}_{1,1})^{-1}$, то выбираем следующую строчку.
+			
+			Если $\forall A^{m \times m}_{i,1}, i = 1, \ldots k \ \nexists (A^{m \times m}_{i,1})^{-1}$,
+			то алгоритм не применим.
+			
+			$\forall i = 2, \ldots k \ A^{m \times m}_{i,1} \rightarrow V_{1}$.
+			$V_{1} | V_{2} \Rightarrow V_{2} = V_{1}^{-1}$, если $\| V_{2} \| < min$, 
+			то разрушаем $V_{min}$ и $ V_{1}, V_{min} = V_{2}$, 
+			иначе разрушаем $V_{1}, V_{2}$.   
+			
+			\item \label{alg:swap} $I_{i} \leftrightarrow I_{1}$ (строчки)
+			
+			\item \label{alg:mult} 
+			$A_{1,1}^{m \times m} = E_{1,1}^{m \times m}, \ V_{min} \times (A_{1,2}^{m \times m} \ \ldots \ A_{1,k}^{m \times m} \ A_{1,k+1}^{m \times l}
+			 = B^{m}_{1})$: \\
+			$A_{1,j}^{m \times m}, j = 2, \ldots, k; \ A_{1,j}^{m \times l}, j = k + 1$ сохраняем в $V_{1}$,
+			затем $V_{2} = V_{min} \cdot V_{1}$ и $V_{2} \rightarrow A_{1,j}$.
+			В итоге получаем: $ E_{1,1}^{m \times m} \ A_{1,2}^{m \times m^*}	\ \ldots \ A_{1,k}^{m \times m^*} \ A_{1,k+1}^{m \times l^*} = B^{m^*}_{1}$
+			
+			\item  \label{alg:form} Далее действуем по формуле $A_{i,j} = A_{i,j} - A_{i,1} \cdot A_{1,j}$, получим матрицу:
+			\[ \begin{pNiceArray}{CCCCC|C}
+				E_{1,1}^{m \times m}   & A_{1,2}^{m \times m^*} 	& \ldots & A_{1,k}^{m \times m^*}   & A_{1,k+1}^{m \times l^*} 	  & B^{m^*}_{1} \\  
+				0					   & A_{2,2}^{m \times m^*} 	& \ldots & A_{2,k}^{m \times m^*}   & A_{2,k+1}^{m \times l^*} 	  & B^{m^*}_{2} \\  
+				\ldots 				   & \Ldots 			  		&  	     &  				      	& \ldots 				  	  & \ldots	    \\  
+				0					   & A_{k,2}^{m \times m^*} 	& \ldots & A_{k,k}^{m \times m^*}   & A_{k,k+1}^{m \times l^*} 	  & B^{m^*}_{k} \\  
+				0					   & A_{k+1,2}^{l \times m^*}   & \ldots & A_{k+1,k}^{l \times m^*} & A_{k+1, k+1}^{l \times l^*} & B^{l^*}_{k+1} \\  
+			\end{pNiceArray} \]
+
+			\item \label{alg:repeat} Далее повторяем алгоритм для матрицы $(n - m) \times (n - m)$:
+			\[ \begin{pNiceArray}{CCCC|C}
+			A_{2,2}^{m \times m^*} 	& \ldots & A_{2,k}^{m \times m^*}   & A_{2,k+1}^{m \times l^*} 	  & B^{m^*}_{2} 	 \\  
+			\ldots 			  		& \Ldots &  				      	& \ldots 				  	  & \ldots	    	 \\  
+			A_{k,2}^{m \times m^*} 	& \ldots & A_{k,k}^{m \times m^*}   & A_{k,k+1}^{m \times l^*} 	  & B^{m^*}_{k} 	 \\  
+			A_{k+1,2}^{l \times m^*}   & \ldots & A_{k+1,k}^{l \times m^*} & A_{k+1, k+1}^{l \times l^*} & B^{l^*}_{k+1} \\
+			\end{pNiceArray} \]
+		
+		\end{enumerate}
+			
+			На $r < k + 1$ ходу алгоритма: 
+		\begin{enumerate}
+			\item Ищем вышеописанную обратную среди матриц $A_{qr}^{m \times m},\ q = r, \ldots, k$ 
+			\item $I_{r} \leftrightarrow I_{q}$ (строчки)
+			\item $A_{r,r}^{m \times m} = E_{r,r}^{m \times m}, \ (A_{r,r}^{{m \times m}})^{-1} \times (A_{r,r+1}^{m \times m} \ \ldots \ A_{r,k}^{m \times m} \ A_{r,k+1}^{m \times l}
+			= B_{r}^{m})$
+			\item 
+			$\begin{aligned}[t]
+				i,j &= r+1, \ldots, k &\ A_{i,j}^{m \times m} 	  &= A_{i,j}^{m \times m} - A_{i,r}^{m \times m} \times A_{r,j}^{m \times m} 		 \\
+				i   &= r+1, \ldots, k &\ A_{i,k+1}^{m \times l}   &= A_{i,k+1}^{m \times l} - A_{i,r}^{m \times m} \times A_{r,k+1}^{m \times l} 	 \\
+				j   &= r+1, \ldots, k &\ A_{k+1,j}^{l \times m}   &= A_{k+1,j}^{l \times m} - A_{k+1,r}^{l \times m} \times A_{r,j}^{m \times m} 	 \\
+					&				  &\ A_{k+1,k+1}^{l \times l} &= A_{k+1,k+1}^{l \times l} - A_{k+1,r}^{l \times m} \times A_{r,k+1}^{m \times l} \\
+				i   &= r+1, \ldots, k &\ B_{i}^{m} 				  &= B_{i}^{m} - A_{i,r}^{m \times m} \times B_{r}^{m} \\
+					&				  &\ B_{k+1}^{l}			  &= B_{k+1}^{l} - A_{k+1,r}^{l \times m} \times B_{r}^{m}\\				
+				i   &= r+1, \ldots, k &\ A_{i,r}^{m \times m} 	  &= 0 \\
+					&				  &\ A_{k+1,r}^{l \times m}   &= 0 
+			\end{aligned}$
+		\end{enumerate}
+
+			На $r = k + 1$ ходу алгоритма:
+			\begin{enumerate}
+				\item \addtocounter{enumi}{1} Ищем вышеописанную обратную к $A_{k+1,k+1}^{l \times l}$
+				\item $A_{k+1,k+1}^{l \times l} = E_{k+1,k+1}^{l \times l}, \ B_{k+1}^{l} = (A_{k+1,k+1}^{l \times l})^{-1} \times B_{k+1}^{l} $
+			\end{enumerate}
+
+			После прямого хода получаем матрицу:
+			\[ \begin{pNiceArray}{CCCCC|C}
+				E_{1,1}^{m \times m}   & A_{1,2}^{m \times m^*} 	& \ldots & A_{1,k}^{m \times m^*}   & A_{1,k+1}^{m \times l^*} 	  & B^{m^*}_{1}   \\  
+				0					   & E_{2,2}^{m \times m^*} 	& \ldots & A_{2,k}^{m \times m^*}   & A_{2,k+1}^{m \times l^*} 	  & B^{m^*}_{2}   \\  
+				\ldots 				   & \Ldots 			  		&  	     &  				      	& \ldots 				  	  & \ldots	      \\  
+				0					   & 0						 	& \ldots & E_{k,k}^{m \times m^*}   & A_{k,k+1}^{m \times l^*} 	  & B^{m^*}_{k}   \\  
+				0					   & 0						    & \ldots & 0					    & E_{k+1, k+1}^{l \times l^*} & B^{l^*}_{k+1} \\  
+			\end{pNiceArray} \]
+
+		\subsection{Обратный ход}
+			
+		\[r = 1: \ X_{i}^{m} = B_{i}^{m} - A^{m \times l}_{i,k+1} \times B^{l}_{k+1}, A^{m \times l}_{i,k+1} = 0, i = 1, \ldots,k \]
+		\[ \begin{pNiceArray}{CCCCC|C}
+			E_{1,1}^{m \times m}   & A_{1,2}^{m \times m^*} 	& \ldots & A_{1,k}^{m \times m^*}   & 0 						  & X^{m}_{1}   \\  
+			0					   & E_{2,2}^{m \times m}   	& \ldots & A_{2,k}^{m \times m^*}   & 0 						  & X^{m}_{2}   \\  
+			\ldots 				   & \Ldots 			  		&  	     &  				      	& \ldots 				  	  & \ldots	      \\  
+			0					   & 0						 	& \ldots & E_{k,k}^{m \times m}     & 0 	  					  & X^{m}_{k}   \\  
+			0					   & 0						    & \ldots & 0					    & E_{k+1, k+1}^{l \times l  } & X^{l}_{k+1} \\  
+		\end{pNiceArray} \]
+
+		\[ \forall r = 2, \ldots, k:\ X_{i}^{m} = X_{i}^{m} - A^{m \times m}_{i,k+2-r} \times B^{m}_{k+2-r}, A^{m \times m}_{i,k+2-r} = 0, i = 1, \ldots , k+1-r\]
+		\[ \begin{pNiceArray}{CCCCC|C}
+			E_{1,1}^{m \times m}   & 0						 	& \ldots & 0					    & 0 						  & X^{m}_{1}   \\  
+			0					   & E_{2,2}^{m \times m}	 	& \ldots & 0					    & 0 						  & X^{m}_{2}   \\  
+			\ldots 				   & \Ldots 			  		&  	     &  				      	& \ldots 				  	  & \ldots	      \\  
+			0					   & 0						 	& \ldots & E_{k,k}^{m \times m  }   & 0 	  					  & X^{m}_{k}   \\  
+			0					   & 0						    & \ldots & 0					    & E_{k+1, k+1}^{l \times l}   & X^{l}_{k+1} \\  
+		\end{pNiceArray} \]
+	
+		\section{Хранение в памяти}
+	\quad Матрицу $A$ храним в памяти таким образом: 
+		\begin{align*}
+			A = \{&a_{1,1}, a_{1,2},  \ldots , a_{1,m},
+					a_{2,1}, a_{2,2}, \ldots , a_{2,m}, \ldots,
+					a_{m,1}, a_{m,2}, \ldots , a_{m,m}, \\
+					&a_{1,m+1}, a_{1,m+2}, \ldots , a_{1,2m}, \ldots, a_{n,n}, 
+					b_{1},\ldots, b_{n} \}
+		\end{align*}
+		\quad	В блочном виде:
+		\begin{align*}
+			A = \{&A_{1,1}, A_{1,2},\ldots , A_{1,k+1},
+			A_{2,1}, A_{2,2},      \ldots , A_{2,k+1}, \ldots, \\
+			&A_{k+1,1}, A_{k+1,2},  \ldots , A_{k+1,k+1},B_{1},\ldots, B_{k+1} \}
+		\end{align*}
+
+		Тогда указатель на блок $A_{i,j}$ $: A + (i - 1) \cdot n \cdot m + (j - 1) \cdot last\_i \cdot m,$. \\
+		Указатель на элемент $(p,q)$ этой же матрицы: $A + (i - 1) \cdot n \cdot m + (j - 1) \cdot last\_i \cdot m + (p - 1) \cdot last\_j + (q - 1)$,
+		где $ last\_i = i\ <\ k\ ?\ m\ :\ l,\ last\_j = j\ <\ k\ ?\ m\ :\ l$.
+		
+		Указатель на $i$-ый элемент $B$: $A + n \cdot n + (i - 1)$
+
+		\section{Оценка сложности}
+		\begin{enumerate}
+			\item Нахождение обратной матрицы для $A^{n \times n}$: $\frac{8}{3}n^3 + O(n^2)$
+			\item Умножение матриц $A^{n \times m} \times A^{m \times l}$: $2mnl - nl$
+			\item Сложение матриц $A^{n \times m} + A^{n \times m}$: $nm$
+		\end{enumerate}
+
+		\subsection{Прямой ход}
+		
+		На $r < k + 1$ ходу прямого хода:
+
+		На шаге \ref{alg:reverse}: \par
+			\quad $(k - r + 1)$ нахождений обратной матрицы к матрице $m \times m$
+		
+		На шаге \ref{alg:mult}: \par
+			\quad $(k - r)$ умножений матриц $m \times m$ на $m \times m$  \par
+			\quad 1 умножение матрицы $m \times m$ на матрицу $m \times l$ \par
+			\quad 1 умножение матрицы $m \times m$ на матрицу $m \times 1$
+
+		На шаге \ref{alg:form}: \par
+			\quad $m \times m$ : по $(k - r)^2$ умножений и сложений		\par
+			\quad по $(k - r)$ умножений матриц $l \times m$ на $m \times m$
+				  							и $m \times m$ на $m \times l$	\par
+			\quad по $(k - r)$ сложений матриц $l \times m$ и $m \times l$ 	\par
+			\quad $(k - r)$ умножений матрицы $m \times m$ на $m \times 1$	\par
+			\quad $(k - r)$ сложений матриц $m \times 1$					\par
+			\quad 1 умножение матрицы $l \times m$ на $m \times l$			\par
+			\quad 1 сложение $l \times l$									\par
+			\quad 1 умножение $l \times m$ матрицы на $m \times 1$			\par
+			\quad 1 сложение $l \times 1$ матриц 							\\
+		На $r = k + 1$ ходу:	
+
+		На шаге \ref{alg:reverse}: \par
+			\quad 1 нахождениe обратной матрицы к матрице $l \times l$
+		
+		На шаге \ref{alg:mult}: \par
+			\quad 1 умножение матрицы $l \times l$ на матрицу $l \times 1$
+
+			Сложнось прямого хода:
+		\begin{multline*}
+			\sum_{i=0}^{k-1} ((i + 1) \frac{8}{3}m^3 + i(i + 1) (2m^3 - m^2) + i^2m^2 + (1+2i)(2m^2l-ml) + 2iml \\ + 2ml^2 - ml + l^2 + (1 + i)(2m^2-m) + im + 2ml - l + l) + \frac{8}{3}l^3+2l^2-l
+		\end{multline*}
+		\subsection{Обратный ход}
+		На шаге 1: $k$ умножений матриц $m \times l$ на $l \times 1$ и $k$ сложений $m \times 1$ матриц. \\
+		На каждом следующем шаге $r$: $(k - r)$ умножений $m \times m$ на $m \times 1$ и $(k - r)$ сложений $m \times 1$
+		матриц.
+
+		Сложность обратного хода:
+		\[ \sum^{k-2}_{i=0} (i(2m^2-m) + im) + k(ml - m) + km \]
+
+		\subsection{Сложность алгоритма}
+		Сложность всего алгоритма: 
+		\[\boxed{\frac{2}{3}n^3 + \frac{4}{3}mn^2 + \frac{2}{3}m^2n + O(n^2)} \]
+
+		При $m = 1$: $\frac{2}{3}n^3 + O(n^2)$;
+
+		При $m = n$: $\frac{8}{3}n^3 + O(n^2)$;
+\end{document}

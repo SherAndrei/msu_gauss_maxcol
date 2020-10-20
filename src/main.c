@@ -10,13 +10,16 @@
 #include <stdio.h>
 #include <time.h>
 
+#define LOG 1
+
 int main(int argc, const char* argv[])
 {
 	int errno = 0;
 	int n, m, r, s;
 	// Solving AX = B
 	double *A = NULL, *B = NULL, *X = NULL;
-
+	time_t start, end, start_solving, end_solving;
+	start = clock();
 	printf(" Usage: ");
 	for(int i = 1; i < argc; i++) 
 		printf("[%s] ", argv[i]);
@@ -43,7 +46,7 @@ int main(int argc, const char* argv[])
 			free_matrix(A);
 			return error(errno);   
 		}
-	} else if ((s > 0 || s < 5) && argc == 5) {
+	} else if ((s > 0 && s < 5) && argc == 5) {
 		fill(A, n, m, s, NULL, NULL);
 	} else {
 		free_matrix(A);
@@ -59,22 +62,27 @@ int main(int argc, const char* argv[])
 		return error(5);
 	}
 
+#if LOG
 	//Печатаем то, что было до
-	// print_matrix(A, n, n, m, r);
+	print_matrix(A, n, n, m, r);
 	// print_matrix(B, n, 1, m, r);
-
+#endif
 	//Засекаем время и решаем
-	time_t start, end;
-	start = clock();
+	
+	start_solving = clock();
 	if(solve(n, m, A, B, X) == 0) {
-		printf("Solved:\n");
+		
+		printf("Solved!\n");
+#if LOG
 		print_matrix(A, n, n, m, r);
-		print_matrix(B, n, 1, m, r);
+#endif
+		// print_matrix(B, n, 1, m, r);
 	} else {
-		printf("Algorithm is inaplicable\n");
+		printf("Algorithm is inaplicable!\n");
 	}
-	end = clock();
-	printf("Time of solving : %6.3f sec\n", ((float)(end - start))/ CLOCKS_PER_SEC);
+	end_solving = clock();
+	printf("Time of solving : %6.3f sec\n", ((float)(end_solving - start_solving))/ CLOCKS_PER_SEC);
+	
 	// print_matrix(X, n, 1, m, r);
 
 	//Печатаем результат
@@ -96,8 +104,11 @@ int main(int argc, const char* argv[])
 
 	// print_residual(A, B, n, X);
 	// print_difference(n, X);
+	end = clock();
+	printf("Working time : %6.3f sec\n", ((float)(end - start))/ CLOCKS_PER_SEC);
 	printf("========================================\n");
 	free_matrix(A);
 	free_matrix(X);
 	return 0;
 }
+#undef LOG

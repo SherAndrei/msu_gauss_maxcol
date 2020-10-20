@@ -6,7 +6,7 @@
 #endif
 
 //Поменять местами элемент lhs и rhs
-static void swap(double* lhs, double* rhs) 
+static void swap(double* const lhs, double* const rhs) 
 {
     double temp = *lhs;
     *lhs = *rhs;
@@ -14,15 +14,6 @@ static void swap(double* lhs, double* rhs)
 }
 
 #define eps 1e-16
-
-// сделать единичной matr
-void make_identity(double* matr, const int dim)
-{
-	int i, j;
-	for(i = 0; i < dim; i++) 
-		for(j = 0; j < dim; j++)
-			matr[i*dim + j] = ( i == j );
-}
 
 #define A(i,j) A[(i) * n + (j)]
 #define E(i,j) A_inversed[(i) * n + (j)]
@@ -38,7 +29,7 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR)
 	// коэффициент 
 	double c = 0.;
 #if LOG
-	printf("%e\n", ERROR);
+	// printf("%e\n", ERROR);
 #endif
 	//идем по столбцам
 	for(j = 0; j < n; j++) {
@@ -74,31 +65,33 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR)
         //разделим j уравнение на него  
         c = A(j,j);
 		if(fabs(c - 1) > ERROR) {
-			for(k = 0; k < j; k++)
+			for(k = 0; k < j + 1; k++)
 				E(j, k) /= c;
-        	for(k = j; k < n; k++) {
+            A(j, j) = 1;
+        	for(k = j + 1; k < n; k++) {
 	    	    A(j, k) /= c;
 	    	    E(j, k) /= c;
         	}
-			ERROR /= fabs(c);
+			// ERROR /= fabs(c);
 		}
-
+        
 		// a_jj = 1
         //вычитаем из всех строчек строчку с максимальным элементом,
         // умноженную на соответствующий коэфф c, чтобы получить нули в столбце 
 		for(i = j + 1; i < n; i++) {
 			c = A(i, j);
 			if(fabs(c) > ERROR) {
-				for(k = 0; k < j; k++) {
+				for(k = 0; k < j + 1; k++) {
 					E(i, k) -= c * E(j,k);
 				}
-				for(k = j; k < n; k++) {
+                A(i, j) = 0;
+				for(k = j + 1; k < n; k++) {
 					A(i, k) -= c * A(j,k);
 					E(i, k) -= c * E(j,k);
 				}
 			}
-			// ERROR += fabs(c)*ERROR;
 		}
+			// ERROR *= fabs(max);
 	}
 	// матрица теперь верхнедиагональная
 	//обратный ход метода Гаусса
@@ -115,3 +108,5 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR)
 	}
 	return 0;
 }
+
+#undef LOG

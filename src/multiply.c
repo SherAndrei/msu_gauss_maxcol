@@ -1,7 +1,9 @@
 #include "multiply.h"
 // a size: av * ah 
 // b size: bv * bh 
-int basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, double * c)
+int basic_multiply(const double* const a, const int av, const int ah, 
+                   const double* const b, const int bv, const int bh,
+                   double* const c)
 {
 	int i, j, k;
 	if(bv != ah) {
@@ -20,13 +22,15 @@ int basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, double 
 // b size: bv * bh 
 // разница в том, что теперь мы во время цикла работаем больше, чем с одним элементом
 // в данной функции получаем одновременно 4 c_{ij}
-int conv_basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, double * c)
+int conv_basic_multiply(const double* const a, const int av, const int ah, 
+                        const double* const b, const int bv, const int bh,
+                        double* const c)
 {
 	int r, t, q;
 	double sum;
 	//ближайшее четное, меньше, чем соответствующие
-	int av2 = (av & (~1));
-	int bh2 = (bh & (~1));
+	const int av2 = (av & (~1));
+	const int bh2 = (bh & (~1));
 	// для вышеописанной логики
 	double c00, c10, c01, c11;
 	if(ah != bv)
@@ -54,27 +58,32 @@ int conv_basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, do
 	// повторяем процесс для последнего столбца и строчки
 	// так, как делали раньше
 	if(av2 < av) {
-		for(r = av2; r < av; r++)	
+		// for(r = av2; r < av; r++)	
 			for(t = 0; t < bh; t++) {
 				sum = 0;
 				for(q = 0; q < ah; q++)
-					sum += a[r * ah + q] * b[q * bh + t];
+					sum += a[av2 * ah + q] * b[q * bh + t];
 				c[r * bh + t] = sum;
 			}	
 	}
 	if(bh2 < bh) {
-		for(r = 0; r < av; r++)	
-			for(t = bh2; t < bh; t++) {
+		for(r = 0; r < av; r++)	{
+			// for(t = bh2; t < bh; t++) {
 				sum = 0;
 				for(q = 0; q < ah; q++)
-					sum += a[r * ah + q] * b[q * bh + t];
-				c[r * bh + t] = sum;
-		}	
+					sum += a[r * ah + q] * b[q * bh + bh2];
+				c[r * bh + bh2] = sum;
+		// }	
+        }
 	}
 	return 0;
 }
 // m - размер блока
-int block_multiply(double *a, double *b, double*c, int n, int m)
+// a * b = c
+int block_multiply(double* const a, 
+                   double* const b, 
+                   double* const c, 
+                   const int n, const int m)
 {
 	//для циклов
 	int i, j, s, r, t, q;
@@ -83,9 +92,9 @@ int block_multiply(double *a, double *b, double*c, int n, int m)
 	int av, ah, bh;
 	//int bv всегда равен ah
 	// количество блоков размера n
-	int k = n / m;
+	const int k = n / m;
 	// длина/высота остаточного блока
-	int l = n - k * m;
+	const int l = n - k * m;
 	// указатели на очередные блоки
 	double *pa, *pb, *pc;
 	// для суммирования
@@ -136,7 +145,10 @@ int block_multiply(double *a, double *b, double*c, int n, int m)
 // m - размер блока
 // разница в том, что теперь мы во время цикла работаем больше, чем с одним элементом
 // в данной функции получаем одновременно 4 c_{ij}^(rt)
-int conv_block_multiply(double *a, double *b, double*c, int n, int m)
+int conv_block_multiply(double* const a, 
+                        double* const b, 
+                        double* const c, 
+                        const int n, const int m)
 {
 	//для циклов
 	int i, j, s, r, t, q;
@@ -147,9 +159,9 @@ int conv_block_multiply(double *a, double *b, double*c, int n, int m)
 	// блиэайшие четные меньшие чем соответствующие
 	int av2, bh2;
 	// количество блоков размера n
-	int k = n / m;
+	const int k = n / m;
 	// длина/высота остаточного блока
-	int l = n - k * m;
+	const int l = n - k * m;
 	// указатели на очередные блоки
 	double *pa, *pb, *pc;
 	// для суммирования

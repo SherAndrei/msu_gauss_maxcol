@@ -8,14 +8,14 @@
 #include <math.h>
 
 // столбцовая норма матрицы
-double  norm(const double* A, const int n)
+double  norm(const double* const A, const int n)
 {
 	int i, j;
 	double max = 0, current;
 	for(i = 0; i < n; i++) {
 		current = 0.;
 		for(j = 0; j < n; j++) {
-			current += fabs(A[i * n + j]);
+			current += fabs(A[j * n + i]);
 		}
 		if(current > max)
 			max = current;
@@ -23,17 +23,35 @@ double  norm(const double* A, const int n)
     return max;
 }
 
-void copy(double* source, double* dest, int n)
+void copy(const double* source, double* dest, const int n)
 {
 	int i;
 	for(i = 0; i < n; i++) 
 		dest[i] = source[i];
 }
 
+// сделать единичной matr
+void make_identity(double* const matr, const int dim)
+{
+	int i, j;
+	for(i = 0; i < dim; i++) 
+		for(j = 0; j < dim; j++)
+			matr[i*dim + j] = ( i == j );
+}
+
+void null(double* const matr, const int v, const int h)
+{
+    int i;
+    for(i = 0; i < v * h; i++)
+        matr[i] = 0.;
+}
+
+#define eps (1e-16)
+
 //Найти корни и записать в answer
 int solve(const int n, const int m, double* A, double* B, double* X)
 {
-	//
+	// итераторы
 	int i = 0, j = 0, r = 0, q = 0;
 	// вспомогательные матрицы
 	double *V1, *V2, *Vmin;
@@ -44,11 +62,12 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 	// размер текущего блока av * ah
 	int av = 0, ah = 0;
 	// количество блоков
-	int k = n / m;
+	const int k = n / m;
 	// остаток
-	int l = n - k * m;
+	const int l = n - k * m;
 	// погрешность
-	double ERROR = norm(A, n) * 1e-16;
+    double ERROR;
+	// double ERROR = norm(A, n) * 1e-16;
 	// минимальная норма обратной матрицы
 	double min = 0.;
 	// строчка с минимальной матрицей
@@ -80,8 +99,11 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 		// V_min = (A_{j,j})^(-1)
 		// min = ||V_min||
 		copy(pa, V1, av * ah);
+        ERROR = norm(V1, av) * eps;
+        // printf("Error: %e\n", ERROR);
 		make_identity(Vmin, ah);
 		if(gauss_inverse(V1, Vmin, av, ERROR) == 0) {
+            // print_matrix(Vmin, av, ah, m, av);
 			min   = norm(Vmin, av);
 			min_i = j;
 		} else c++;
@@ -93,8 +115,11 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 			pi = A + i * n * m + j * av * m;
 
 			copy(pi, V1, av * ah);
+            ERROR = norm(V1, av) * eps;
+            // printf("Error: %e\n", ERROR);
 			make_identity(V2, av);
 			if(gauss_inverse(V1, V2, av, ERROR) == 0) {
+                
 				current = norm(V2, av);
 				if(fabs(current - min) < ERROR) {
 					copy(V2, Vmin, av * ah);
@@ -140,12 +165,17 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 
 		// A_{ i, c } = A_{ i, c } - A_{ i, j } x A_{ j, c }
 		//      pa    =     pa     -     pi     x     pj 
-		// идем вниз по столбцу
+		// идем по строчкам вниз
 		for(i = j + 1; i * m < n; i++) {
 			q = (i < k) ? m : l;
+            //
+            // TODO: пихать в матрицу V1, переименовать Vmin в V3
+            //
+			// pi = A + i * n * m + j * q * m;  
 			pi = A + i * n * m + j * q * m;  
-			// теперь по каждой строчке
-			for(c = j; c * m < n; c++) {
+			// каждую умножаем и вычитаем с подходящим коэффицентом
+			for(c = j ; c * m < n; c++) {
+			// // for(c = j + 1; c * m < n; c++) {
 				ah = (c < k) ? m : l;
 				pa = A + i * n * m + c * q * m;
 				pj = A + j * n * m + c * q * m;
@@ -170,7 +200,16 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 	}
 
 	// матрица теперь верхнедиагональная
-	(void) X;
+    
+    // идем с последней строчки
+    // copy(B, X, n);
+	// for(i = k; i >= 0; i--) {
+    //     av = (i < k) ? m : l;
+    //     pi = X + i * m;
+    //     for(j = 0; j < i; j++);
+    // }
+    
+    (void) X;
 
 	free_matrix(V1);
 	free_matrix(V2);
