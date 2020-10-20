@@ -3,49 +3,12 @@
 #include "print.h"
 #include "multiply.h"
 #include "gauss_inverse.h"
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 
-// столбцовая норма матрицы
-double  norm(const double* const A, const int n)
-{
-	int i, j;
-	double max = 0, current;
-	for(i = 0; i < n; i++) {
-		current = 0.;
-		for(j = 0; j < n; j++) {
-			current += fabs(A[j * n + i]);
-		}
-		if(current > max)
-			max = current;
-	}
-    return max;
-}
+double fabs(double);
+double sqrt(double);
 
-void copy(const double* source, double* dest, const int n)
-{
-	int i;
-	for(i = 0; i < n; i++) 
-		dest[i] = source[i];
-}
-
-// сделать единичной matr
-void make_identity(double* const matr, const int dim)
-{
-	int i, j;
-	for(i = 0; i < dim; i++) 
-		for(j = 0; j < dim; j++)
-			matr[i*dim + j] = ( i == j );
-}
-
-void null(double* const matr, const int v, const int h)
-{
-    int i;
-    for(i = 0; i < v * h; i++)
-        matr[i] = 0.;
-}
-
+#ifndef NULL
+#define NULL ((void *) 0)
 #define eps (1e-16)
 
 //Найти корни и записать в answer
@@ -54,7 +17,7 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 	// итераторы
 	int i = 0, j = 0, r = 0, q = 0;
 	// вспомогательные матрицы
-	double *V1, *V2, *Vmin;
+	double *V1, *V2, *V3;
 	// указатель на текущий блок
 	double *pa, *pb;
 	// указатель на очередной блок в столбце/в строчке
@@ -83,7 +46,7 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 		free_matrix(V1);
 		return error(5);
 	}
-	if((Vmin = alloc_matrix(m, m)) == NULL) {
+	if((V3 = alloc_matrix(m, m)) == NULL) {
 		free_matrix(V1);
 		free_matrix(V2);
 		return error(5);
@@ -98,31 +61,28 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 		// A_{j,j} --> V1
 		// V_min = (A_{j,j})^(-1)
 		// min = ||V_min||
-		copy(pa, V1, av * ah);
+		copy(pa, V1, av, ah);
         ERROR = norm(V1, av) * eps;
-        // printf("Error: %e\n", ERROR);
-		make_identity(Vmin, ah);
-		if(gauss_inverse(V1, Vmin, av, ERROR) == 0) {
-            // print_matrix(Vmin, av, ah, m, av);
-			min   = norm(Vmin, av);
+		identity(V3, ah);
+		if(gauss_inverse(V1, V3, av, ERROR) == 0) {
+			min   = norm(V3, av);
 			min_i = j;
 		} else c++;
 
 		// i = j + 1, ..., k - 1 
 		// A_{i, j} --> V1, V2 = (A_{i,j})^(-1)
-		// if ||V2|| < min Vmin = V2, min = ||V2||
+		// if ||V2|| < min V3 = V2, min = ||V2||
 		for(i = j + 1; i * m + l < n; i++) {
 			pi = A + i * n * m + j * av * m;
 
-			copy(pi, V1, av * ah);
+			copy(pi, V1, av, ah);
             ERROR = norm(V1, av) * eps;
-            // printf("Error: %e\n", ERROR);
-			make_identity(V2, av);
+			identity(V2, av);
 			if(gauss_inverse(V1, V2, av, ERROR) == 0) {
                 
 				current = norm(V2, av);
 				if(fabs(current - min) < ERROR) {
-					copy(V2, Vmin, av * ah);
+					copy(V2, V3, av, ah);
 					min   = current;
 					min_i = i;
 				}
@@ -132,7 +92,7 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 		if(c == k - j + (av == l)) {
 			free_matrix(V1);
 			free_matrix(V2);
-			free_matrix(Vmin);
+			free_matrix(V3);
 			return -1;
 		}
 
@@ -149,18 +109,19 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 			}
 		}
 
-		//V_min * (A_{j,j}, A_{j,j+1},...,A_{j,k+1},B_{j})
-		for(i = j; i * m < n; i++) {
+		//A_{j,j} = E, V_3 * (A_{j,j+1},...,A_{j,k+1},B_{j})
+        identity(pa, av);
+		for(i = j + 1; i * m < n; i++) {
 			r = (i < k) ? m : l;
 			pi = A + j * n * m + i * av * m; 
-			copy(pi, V1, av * r);
-			conv_basic_multiply(Vmin, av, ah, V1, av, r, V2);
-			copy(V2, pi, av * r);
+			copy(pi, V1, av, r);
+			conv_basic_multiply(V3, av, ah, V1, av, r, V2);
+			copy(V2, pi, av, r);
 		}
 		pb = B + j * m;
-		copy(pb, V1, av * 1);
-		conv_basic_multiply(Vmin, av, ah, V1, av, 1, V2);
-		copy(V2, pb, av * 1);
+		copy(pb, V1, av, 1);
+		conv_basic_multiply(V3, av, ah, V1, av, 1, V2);
+		copy(V2, pb, av, 1);
 		
 
 		// A_{ i, c } = A_{ i, c } - A_{ i, j } x A_{ j, c }
@@ -168,14 +129,9 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 		// идем по строчкам вниз
 		for(i = j + 1; i * m < n; i++) {
 			q = (i < k) ? m : l;
-            //
-            // TODO: пихать в матрицу V1, переименовать Vmin в V3
-            //
-			// pi = A + i * n * m + j * q * m;  
 			pi = A + i * n * m + j * q * m;  
 			// каждую умножаем и вычитаем с подходящим коэффицентом
-			for(c = j ; c * m < n; c++) {
-			// // for(c = j + 1; c * m < n; c++) {
+			for(c = j + 1; c * m < n; c++) {
 				ah = (c < k) ? m : l;
 				pa = A + i * n * m + c * q * m;
 				pj = A + j * n * m + c * q * m;
@@ -185,13 +141,13 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 					pa[r] -= V1[r];
 				}
 			}
-			// print_matrix(A, n, n, m, r);
 			pa = B + i * m;
 			pj = B + j * m;
 			conv_basic_multiply(pi, q, m, pj, m, 1, V2);
 			for(r = 0; r < q; r++) {
 				pa[r] -= V2[r];
 			} 
+            null(pi, q, m);
 		}
 
 		min = 0.;
@@ -201,40 +157,59 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 
 	// матрица теперь верхнедиагональная
     
+    // последние X_{l} нам уже известны
+    copy(B + k * m, X + k * m, l, 1);
     // идем с последней строчки
-    // copy(B, X, n);
-	// for(i = k; i >= 0; i--) {
-    //     av = (i < k) ? m : l;
-    //     pi = X + i * m;
-    //     for(j = 0; j < i; j++);
-    // }
-    
-    (void) X;
+    for(i = k - 1; i >= 0; i--) {
+        // pi = X + i * m;
+        // pj = B + i * m;
+        copy(B + i * m, X + i * m, m, 1);
+        // сумма наших матриц
+        // null(V1, m, 1);
+        for(j = i + 1; j * m < n; j++) {
+            ah = (j < k) ? m : l;
+            // A_{i,j}
+            // уже не работаем с матрицами l x m
+            pi = A + i * m * n + j * m * m; 
+            // X_{j}
+            pj = X + j * m;
+
+            conv_basic_multiply(pi, m, ah, pj, ah, 1, V2);
+            for(q = 0; q < m * 1; q++)
+                (X + i * m)[q] -= V2[q];
+            null(pi, m, ah); 
+        }
+    }
 
 	free_matrix(V1);
 	free_matrix(V2);
-	free_matrix(Vmin);
+	free_matrix(V3);
 	return 0;
 }
 
 
-
 //Норма невязки
-double residual(const int dim, const double* matrix,const double* r_part,const double* answer)
+double residual(const double* A, const double* B, const double* X, const int n, const int m)
 {
-	(void) dim;
-	(void) matrix;
-	(void) r_part;
-	(void) answer;
+(void) A;
+(void) B;
+(void) X;
+(void) n;
+(void) m;
 	return 0.;
 }
 
 //Норма разности с ответом
-double difference(const int dim, double* answer)
+double difference(const double* const answer, const int dim)
 {
-	(void) dim;
-	(void) answer;
-	
-    return 0.;
+    double result = 0;
+    int i;
+    for(i = 0; i < dim; i += 2) {
+        result += (answer[i] - 1) * (answer[i] - 1);
+    }
+
+    return sqrt(result);
 }
 
+#endif // NULL
+#undef eps
