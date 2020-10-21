@@ -1,6 +1,5 @@
 #include "matrix.h"
 #include "error.h"
-#include "print.h"
 #include "multiply.h"
 #include "extract.h"
 #include "gauss_inverse.h"
@@ -8,9 +7,11 @@
 double fabs(double);
 double sqrt(double);
 
-#ifndef NULL
-#define NULL ((void *) 0)
 #define eps (1e-16)
+
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
 
 //Найти корни и записать в answer
 int solve(const int n, const int m, double* A, double* B, double* X)
@@ -20,7 +21,7 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 	// вспомогательные матрицы
 	double *V1, *V2, *V3;
 	// указатель на текущий блок
-	double *pa, *pb;
+	double *pa ;
 	// указатель на очередной блок в столбце/в строчке
 	double *pi, *pj;
 	// размер текущего блока av * ah
@@ -104,13 +105,12 @@ int solve(const int n, const int m, double* A, double* B, double* X)
                 copy(pi, V1, m, m);
                 copy(pj, pi, m, m);
                 copy(V1, pj, m, m);
-				}
+			}
             pi = B + min_i * m;
             pj = B + j * m;
             copy(pi, V1, m, 1);
             copy(pj, pi, m, 1);
             copy(V1, pj, m, 1);
-			}
 		}
 
 		//A_{j,j} = E, V_3 * (A_{j,j+1},...,A_{j,k+1},B_{j})
@@ -122,10 +122,10 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 			conv_basic_multiply(V3, av, ah, V1, av, r, V2);
 			copy(V2, pi, av, r);
 		}
-		pb = B + j * m;
-		copy(pb, V1, av, 1);
+		pi = B + j * m;
+		copy(pi, V1, av, 1);
 		conv_basic_multiply(V3, av, ah, V1, av, 1, V2);
-		copy(V2, pb, av, 1);
+		copy(V2, pi, av, 1);
 		
 
 		// A_{ i, c } = A_{ i, c } - A_{ i, j } x A_{ j, c }
@@ -179,6 +179,7 @@ int solve(const int n, const int m, double* A, double* B, double* X)
             pj = X + j * m;
 
             conv_basic_multiply(pi, m, ah, pj, ah, 1, V2);
+            // TODO: extract((X + i * m), V2, 1, m);
             for(q = 0; q < m * 1; q++)
                 (X + i * m)[q] -= V2[q];
             null(pi, m, ah); 
@@ -193,14 +194,51 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 
 
 //Норма невязки
-double residual(const double* A, const double* B, const double* X, const int n, const int m)
+double residual(double* A, double* B, double* X, const int n, const int m)
 {
-(void) A;
-(void) B;
-(void) X;
-(void) n;
-(void) m;
-	return 0.;
+    int i, j, q, r;
+    int av, ah;
+    double *pa, *pi, *pj;
+    // количество блоков
+	const int k = n / m;
+	// остаток
+	const int l = n - k * m;
+    double norm = 0.;
+    double sum = 0.;
+
+    // Норма B
+    for(i = 0; i < n; i++) {
+        norm += fabs(B[i]);
+    }
+    // if(norm == 0.)
+    //     return 0.;
+      
+    // идем по столбцам
+    for(j = 0; j * m < n; j++) {
+        ah = (j < k) ? m : l;
+        pj = X + j * m;
+        // по каждой строчке
+        for(i = 0; i * m < n; i++) {
+            pi = B + i * m;
+            av = (i < k) ? m : l;
+            pa = A + i * m * n + j * av * m;
+            // считаем B_{i} = B_{i} - \sum A_{i,j} X_{j} 
+            for(q = 0; q < av; q++) {
+                sum = 0.;
+                for(r = 0; r < ah; r++) {
+                    sum += pa[q * ah + r] * pj[r];
+                }
+                pi[q] -= sum;
+            }
+        }
+    }
+    sum = 0.;
+    // Норма невязки
+    for(i = 0; i < n; i++) {
+        sum += fabs(B[i] / norm);
+    }
+
+	return sum;
 }
 
 //Векторная норма разности с ответом

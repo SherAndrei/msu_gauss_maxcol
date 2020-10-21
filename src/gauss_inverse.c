@@ -1,9 +1,5 @@
 #include <math.h>
 #include "gauss_inverse.h"
-#define LOG 0
-#if LOG
-#include <stdio.h>
-#endif
 
 //Поменять местами элемент lhs и rhs
 static void swap(double* const lhs, double* const rhs) 
@@ -28,9 +24,6 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR)
 	int max_i = 0.;
 	// коэффициент 
 	double c = 0.;
-#if LOG
-	// printf("%e\n", ERROR);
-#endif
 	//идем по столбцам
 	for(j = 0; j < n; j++) {
 
@@ -72,7 +65,6 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR)
 	    	    A(j, k) /= c;
 	    	    E(j, k) /= c;
         	}
-			// ERROR /= fabs(c);
 		}
         
 		// a_jj = 1
@@ -91,7 +83,6 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR)
 				}
 			}
 		}
-			// ERROR *= fabs(max);
 	}
 	// матрица теперь верхнедиагональная
 	//обратный ход метода Гаусса
@@ -108,5 +99,3 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR)
 	}
 	return 0;
 }
-
-#undef LOG
