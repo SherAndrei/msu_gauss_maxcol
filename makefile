@@ -5,23 +5,24 @@ RMDIR := rm -rf
 #Folders to make life easier
 BIN 	:= ./bin
 OBJ 	:= ./obj
-INCLUDE := ./hdr
+HDR 	:= ./hdr
 SRC 	:= ./src
+BENCH   := ./bench
 
 #Compiler features
 CC      := gcc
 CFLAGS  := -mfpmath=sse -fstack-protector-all -W -Wall -Wextra -Wunused -Wcast-align \
 		  -Werror -pedantic -pedantic-errors -Wfloat-equal -Wpointer-arith -Wformat-security \
 		  -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long  \
-		  -Wcast-qual -Wno-suggest-attribute=format-Werror -Wpedantic -I$(INCLUDE)
-LDFLAGS := -fsanitize=address -fno-omit-frame-pointer -static-libasan
+		  -Wcast-qual -Wno-suggest-attribute=format-Werror -Wpedantic -I$(HDR)
+LDFLAGS := -fsanitize=address -fno-omit-frame-pointer
 LIBS    := -lm
 
 #Variables
-DVARS := LSAN_OPTION=verbosity=1:log_threads=1;
 EXE   := $(BIN)/main
 SRCS  := $(wildcard $(SRC)/*.c)
 OBJS  := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))	
+BNCHS := $(wildcard $(BENCH)/*.txt)
 
 # $@ - the left side of the :
 # $^ - the right side of the :
@@ -34,13 +35,13 @@ $(EXE): $(OBJS) | $(BIN)
 $(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
 	 $(CC) -c $< -o $@ $(CFLAGS)  
 
-$(BIN) $(OBJ):
+$(BIN) $(OBJ) $(BENCH):
 	$(MKDIR) $@
 
 .PHONY: clear debug release
 
 clear:
-	$(RMDIR) $(OBJ) $(BIN)
+	$(RMDIR) $(OBJ) $(BIN) $(BNCHS)
 
 debug: CFLAGS += -g -O0 -DDEBUG
 debug: $(EXE) 
