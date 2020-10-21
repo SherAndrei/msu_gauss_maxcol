@@ -49,9 +49,9 @@
 
 		\begin{enumerate}
 			
-			\item \label{alg:reverse} $ A^{m \times m}_{1,1} \rightarrow V_{1} $, обычным методом Гаусса 
-			для нахождения обратной матрицы $V_{1} | V_{min} \Rightarrow V_{min} = V_{1}^{-1}
-			=  (A^{m \times m}_{1,1})^{-1}$ и разрушаем $V_{1}$, $min = \| V_{min} \|  $ 
+			\item \label{alg:reverse} $ A^{m \times m}_{1,1} \rightarrow V_{1} $, методом Гаусса с выбором
+			максимального элемента по столбцу для находим обратную матрицу $V_{1} | V_{3} \Rightarrow V_{3} = V_{1}^{-1}
+			=  (A^{m \times m}_{1,1})^{-1}$, $min = \| V_{3} \|  $ 
 			
 			Если $ \nexists (A^{m \times m}_{1,1})^{-1}$, то выбираем следующую строчку.
 			
@@ -60,16 +60,15 @@
 			
 			$\forall i = 2, \ldots k \ A^{m \times m}_{i,1} \rightarrow V_{1}$.
 			$V_{1} | V_{2} \Rightarrow V_{2} = V_{1}^{-1}$, если $\| V_{2} \| < min$, 
-			то разрушаем $V_{min}$ и $ V_{1}, V_{min} = V_{2}$, 
-			иначе разрушаем $V_{1}, V_{2}$.   
+			то меняем местами указатели $V_{3}$ и $V_{2}$.   
 			
 			\item \label{alg:swap} $I_{i} \leftrightarrow I_{1}$ (строчки)
 			
 			\item \label{alg:mult} 
-			$A_{1,1}^{m \times m} = E_{1,1}^{m \times m}, \ V_{min} \times (A_{1,2}^{m \times m} \ \ldots \ A_{1,k}^{m \times m} \ A_{1,k+1}^{m \times l}
+			$A_{1,1}^{m \times m} = E_{1,1}^{m \times m}, \ V_{3} \times (A_{1,2}^{m \times m} \ \ldots \ A_{1,k}^{m \times m} \ A_{1,k+1}^{m \times l}
 			 = B^{m}_{1})$: \\
 			$A_{1,j}^{m \times m}, j = 2, \ldots, k; \ A_{1,j}^{m \times l}, j = k + 1$ сохраняем в $V_{1}$,
-			затем $V_{2} = V_{min} \cdot V_{1}$ и $V_{2} \rightarrow A_{1,j}$.
+			затем $V_{2} = V_{3} \cdot V_{1}$ и $V_{2} \rightarrow A_{1,j}$.
 			В итоге получаем: $ E_{1,1}^{m \times m} \ A_{1,2}^{m \times m^*}	\ \ldots \ A_{1,k}^{m \times m^*} \ A_{1,k+1}^{m \times l^*} = B^{m^*}_{1}$
 			
 			\item  \label{alg:form} Далее действуем по формуле $A_{i,j} = A_{i,j} - A_{i,1} \cdot A_{1,j}$, получим матрицу:
@@ -126,17 +125,19 @@
 			\end{pNiceArray} \]
 
 		\subsection{Обратный ход}
-			
-		\[r = 1: \ X_{i}^{m} = B_{i}^{m} - A^{m \times l}_{i,k+1} \times B^{l}_{k+1}, A^{m \times l}_{i,k+1} = 0, i = 1, \ldots,k \]
+        
+        \[r = 1: \ E_{k + 1, k + 1}^{l \times l} = X_{k+1}^{l}\]	
+		\[r = 2: \ X_{k}^{m} = B_{i}^{k} - A^{m \times l}_{k,k+1} \cdot B^{l}_{k+1},\ A^{m \times l}_{k,k+1} = 0 \]
 		\[ \begin{pNiceArray}{CCCCC|C}
-			E_{1,1}^{m \times m}   & A_{1,2}^{m \times m^*} 	& \ldots & A_{1,k}^{m \times m^*}   & 0 						  & X^{m}_{1}   \\  
-			0					   & E_{2,2}^{m \times m}   	& \ldots & A_{2,k}^{m \times m^*}   & 0 						  & X^{m}_{2}   \\  
+			E_{1,1}^{m \times m}   & A_{1,2}^{m \times m^*} 	& \ldots & A_{1,k}^{m \times m^*}   & A_{1,k+1}^{m \times l^*}      & B^{m}_{1}   \\  
+			0					   & E_{2,2}^{m \times m}   	& \ldots & A_{2,k}^{m \times m^*}   & A_{2,k+1}^{m \times l^*}      & B^{m}_{2}   \\  
 			\ldots 				   & \Ldots 			  		&  	     &  				      	& \ldots 				  	  & \ldots	      \\  
 			0					   & 0						 	& \ldots & E_{k,k}^{m \times m}     & 0 	  					  & X^{m}_{k}   \\  
 			0					   & 0						    & \ldots & 0					    & E_{k+1, k+1}^{l \times l  } & X^{l}_{k+1} \\  
 		\end{pNiceArray} \]
 
-		\[ \forall r = 2, \ldots, k:\ X_{i}^{m} = X_{i}^{m} - A^{m \times m}_{i,k+2-r} \times B^{m}_{k+2-r}, A^{m \times m}_{i,k+2-r} = 0, i = 1, \ldots , k+1-r\]
+        \[ \forall r = 3, \ldots, k:\ X_{i}^{m} = B_{i}^{m} - \sum_{j = i + 1}^{n} A^{m \times h}_{i,j} \cdot X^{h}_{j},\ A^{m \times h}_{i,j} = 0, i = k - 2, \ldots, 0\]
+        \[h = (j\ <\ k )\ ?\ m\ :\ l \]
 		\[ \begin{pNiceArray}{CCCCC|C}
 			E_{1,1}^{m \times m}   & 0						 	& \ldots & 0					    & 0 						  & X^{m}_{1}   \\  
 			0					   & E_{2,2}^{m \times m}	 	& \ldots & 0					    & 0 						  & X^{m}_{2}   \\  

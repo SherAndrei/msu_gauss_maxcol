@@ -79,7 +79,9 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 			if(gauss_inverse(V1, V2, av, ERROR) == 0) {
 				current = norm(V2, av);
 				if(fabs(current - min) > ERROR) {
-					copy(V2, V3, av, ah);
+                    pj = V2;
+                    V2 = V3;
+                    V3 = pj;
 					min   = current;
 					min_i = i;
 				}
@@ -140,17 +142,11 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 				
     			conv_basic_multiply(V1, q, m, pj, m, ah, V3);
                 extract(pa, V3, q, ah);
-    			// for(r = 0; r < q * ah; r++) {
-    			// 	pa[r] -= V3[r];
-    			// }
 			}
 			pa = B + i * m;
 			pj = B + j * m;
     		conv_basic_multiply(V1, q, m, pj, m, 1, V3);
     		extract(pa, V3, 1, q);
-            // for(r = 0; r < q; r++) {
-    		// 	pa[r] -= V3[r];
-    		// } 
             null(pi, q, m);
 		}
 
@@ -177,8 +173,6 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 
             conv_basic_multiply(pi, m, ah, pj, ah, 1, V2);
             extract((X + i * m), V2, 1, m);
-            // for(q = 0; q < m * 1; q++)
-                // (X + i * m)[q] -= V2[q];
             null(pi, m, ah); 
         }
     }
@@ -207,9 +201,6 @@ double residual(double* A, double* B, double* X, const int n, const int m)
     for(i = 0; i < n; i++) {
         norm += fabs(B[i]);
     }
-    // if(norm == 0.)
-    //     return 0.;
-      
     // идем по столбцам
     for(j = 0; j * m < n; j++) {
         ah = (j < k) ? m : l;

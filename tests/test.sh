@@ -1,5 +1,5 @@
-DATA="./files"
-prog="./programname"
+DATA="./tests/files"
+prog="./bin/main"
 
 if [[ -x ${prog} ]]; then
     echo "########################### ${prog} ###########################"
