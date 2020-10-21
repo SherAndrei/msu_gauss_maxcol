@@ -5,7 +5,6 @@
 #include "gauss_inverse.h"
 
 double fabs(double);
-double sqrt(double);
 
 #define eps (1e-16)
 
@@ -31,7 +30,7 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 	// остаток
 	const int l = n - k * m;
 	// погрешность
-    double ERROR;
+    double ERROR = norm(A, n) * eps;
 	// минимальная норма обратной матрицы
 	double min = 0.;
 	// строчка с минимальной матрицей
@@ -63,7 +62,6 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 		// V_min = (A_{j,j})^(-1)
 		// min = ||V_min||
 		copy(pa, V1, av, ah);
-        ERROR = norm(V1, av) * eps;
 		identity(V3, ah);
 		if(gauss_inverse(V1, V3, av, ERROR) == 0) {
 			min   = norm(V3, av);
@@ -77,11 +75,10 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 			pi = A + i * n * m + j * av * m;
 
 			copy(pi, V1, av, ah);
-            ERROR = norm(V1, av) * eps;
 			identity(V2, av);
 			if(gauss_inverse(V1, V2, av, ERROR) == 0) {
 				current = norm(V2, av);
-				if(fabs(current - min) < ERROR) {
+				if(fabs(current - min) > ERROR) {
 					copy(V2, V3, av, ah);
 					min   = current;
 					min_i = i;
@@ -179,9 +176,9 @@ int solve(const int n, const int m, double* A, double* B, double* X)
             pj = X + j * m;
 
             conv_basic_multiply(pi, m, ah, pj, ah, 1, V2);
-            // TODO: extract((X + i * m), V2, 1, m);
-            for(q = 0; q < m * 1; q++)
-                (X + i * m)[q] -= V2[q];
+            extract((X + i * m), V2, 1, m);
+            // for(q = 0; q < m * 1; q++)
+                // (X + i * m)[q] -= V2[q];
             null(pi, m, ah); 
         }
     }

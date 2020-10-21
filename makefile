@@ -55,9 +55,9 @@ $(OBJ)/solve.o : $(SRC)/solve.c $(SRC)/matrix.c $(SRC)/gauss_inverse.c $(HDR)/er
 $(BIN) $(OBJ):
 	$(MKDIR) $@
 
-.PHONY: clear debug release
+.PHONY: clean debug release
 
-clear:
+clean:
 	$(RMDIR) $(OBJ) $(BIN)
 
 debug: CFLAGS += -g -O0 -DDEBUG

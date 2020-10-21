@@ -16,7 +16,7 @@ void free_matrix(double* matrix) {
 double  norm(const double* const A, const int n)
 {
 	int i, j;
-	double max = 0, current;
+	double max = 0., current = 0.;
 	for(i = 0; i < n; i++) {
 		current = 0.;
 		for(j = 0; j < n; j++) {

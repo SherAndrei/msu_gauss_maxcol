@@ -7,15 +7,17 @@ int basic_multiply(const double* const a, const int av, const int ah,
                    double* const c)
 {
 	int i, j, k;
+    double sum;
 	if(bv != ah) {
 		return -1;
 	}
 	for(i = 0; i < av; i++)	
 		for(j = 0; j < bh; j++) {
-			c[i * bh + j] = 0;
+			sum = 0.;
 			for(k = 0; k < ah; k++)
-				c[i * bh + j] += a[i * ah + k] * b[k * bh + j];
-		}	
+				sum += a[i * ah + k] * b[k * bh + j];
+            c[i * bh + j] = sum;
+        }	
 	return 0;
 }
 
@@ -112,7 +114,7 @@ int block_multiply(double* const a,
 			// зануляем его с помощью двойного цикла (т.о. он попадает в кэш) 
 			for(r = 0; r < av; r++)
 				for(t = 0; t < bh; t++)
-					pc [r * n + t] = 0.; 
+					pc[r * n + t] = 0.; 
 			
 			// идем по формуле:
 			for(s = 0; s * m < n; s++) {
