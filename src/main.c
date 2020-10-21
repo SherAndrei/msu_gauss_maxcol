@@ -20,7 +20,7 @@ int main(int argc, const char* argv[])
 	printf(" Usage: ");
 	for(int i = 1; i < argc; i++) 
 		printf("[%s] ", argv[i]);
-	printf("\n");
+	printf("\n"); 
 
     if(!((argc == 5 || argc == 6) &&
 		(sscanf(argv[1], "%d", &n) == 1) &&
@@ -90,7 +90,7 @@ int main(int argc, const char* argv[])
 	fill_right_part(A, B, n, m);
 
 	start = clock();
-    printf(" Residual: %10.3e\n", residual(A, B, X, n));
+    printf(" Residual: %10.3e\n", residual(A, B, X, n, m));
 	end = clock();
     printf(" Difference: %10.3e\n\n", difference(X, n));
 	

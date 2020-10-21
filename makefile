@@ -21,6 +21,7 @@ LIBS    := -lm
 #Variables
 EXE   := $(BIN)/main
 SRCS  := $(wildcard $(SRC)/*.c)
+# OBJS  := $(wildcard $(OBJ)/*.o)
 OBJS  := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))	
 BNCHS := $(wildcard $(BENCH)/*.txt)
 
@@ -30,10 +31,28 @@ BNCHS := $(wildcard $(BENCH)/*.txt)
 # -c flag says to generate the object file
 
 $(EXE): $(OBJS) | $(BIN)
-	 $(DVARS) $(CC) $^ -o $@ $(LIBS) $(LDFLAGS) 
+	$(CC) $^ -o $@ $(LIBS) $(LDFLAGS) 
 
-$(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
-	 $(CC) -c $< -o $@ $(CFLAGS)  
+$(OBJ)/main.o: $(SRC)/main.c $(SRCS) | $(OBJ)
+	$(CC) -c $< -o $@ $(CFLAGS)  
+
+$(OBJ)/fill.o: $(SRC)/fill.c $(SRC)/matrix.c $(HDR)/fill.h $(HDR)/error.h $(HDR)/matrix.h | $(OBJ)
+	$(CC) -c $< -o $@ $(CFLAGS)  
+
+$(OBJ)/gauss_inverse.o: $(SRC)/gauss_inverse.c $(HDR)/gauss_inverse.h | $(OBJ)
+	$(CC) -c $< -o $@ $(CFLAGS)  
+
+$(OBJ)/matrix.o : $(SRC)/matrix.c $(HDR)/matrix.h | $(OBJ)
+	$(CC) -c $< -o $@ $(CFLAGS)  
+
+$(OBJ)/print.o : $(SRC)/print.c $(HDR)/print.h | $(OBJ)
+	$(CC) -c $< -o $@ $(CFLAGS)  
+
+$(OBJ)/error.o : $(SRC)/error.c $(HDR)/error.h | $(OBJ)
+	$(CC) -c $< -o $@ $(CFLAGS)  
+
+$(OBJ)/solve.o : $(SRC)/solve.c $(SRC)/matrix.c $(SRC)/gauss_inverse.c $(HDR)/error.h $(HDR)/multiply.h $(HDR)/extract.h | $(OBJ)
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(BIN) $(OBJ) $(BENCH):
 	$(MKDIR) $@
