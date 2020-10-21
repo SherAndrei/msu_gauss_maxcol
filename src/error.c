@@ -42,9 +42,12 @@ int error(const int error)
 		perror("Incorrect input or not enough data!\n");
 		break;
 	}
-
+    case 10: {
+        perror("Algotithm is inaplicable!\n");
+        break;
+    }
 	default:
 		return 0;;
 	}
-	return -1;
+	return error;
 }

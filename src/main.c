@@ -10,8 +10,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#define LOG 1
-
 int main(int argc, const char* argv[])
 {
 	int errno = 0;
@@ -61,33 +59,24 @@ int main(int argc, const char* argv[])
 		return error(5);
 	}
 
-#if LOG
 	//Печатаем то, что было до
 	print_matrix(A, n, n, m, r);
 	print_matrix(B, n, 1, m, r);
-#endif
 	//Засекаем время и решаем
 	
 	start_solving = clock();
 	if(solve(n, m, A, B, X) == 0) {
 		
 		printf("Solved!\n");
-#if LOG
 		print_matrix(A, n, n, m, r);
 		print_matrix(X, n, 1, m, r);
-#endif
 	} else {
-		printf("Algorithm is inaplicable!\n");
+        free_matrix(A);
+        free_matrix(X);
+        return error(10);
 	}
 	end_solving = clock();
 	
-	// print_matrix(X, n, 1, m, r);
-
-	//Печатаем результат
-	// print_all(A, X, n,
-				// r, ((float)(end - start))/ CLOCKS_PER_SEC                
-				// );
-
 	if(s == 0) {
 		fill(A, n, m, 0, argv[5], &errno);
 		if(errno > 0) {
@@ -99,13 +88,14 @@ int main(int argc, const char* argv[])
 		fill(A, n, m, s, NULL, NULL);
 
 	fill_right_part(A, B, n, m);
+
 	start = clock();
-    printf("Residual: %10.3e\n", residual(A, B, X, n));
+    printf(" Residual: %10.3e\n", residual(A, B, X, n));
 	end = clock();
-    printf("Difference: %10.3e\n\n", difference(X, n));
+    printf(" Difference: %10.3e\n\n", difference(X, n));
 	
-    printf("Time solving : %6.3f sec\n", ((float)(end_solving - start_solving))/ CLOCKS_PER_SEC);
-    printf("Time computing residual: %6.3f sec\n", ((float)(end - start))/ CLOCKS_PER_SEC);
+    printf(" Time solving : %6.3f sec\n", ((float)(end_solving - start_solving))/ CLOCKS_PER_SEC);
+    printf(" Time computing residual: %6.3f sec\n", ((float)(end - start))/ CLOCKS_PER_SEC);
 	printf("________________________________________\n");
 	free_matrix(A);
 	free_matrix(X);

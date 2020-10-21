@@ -12,7 +12,7 @@ void free_matrix(double* matrix) {
 	free(matrix);
 }
 
-// столбцовая норма матрицы
+// максимальная столбцовая норма матрицы
 double  norm(const double* const A, const int n)
 {
 	int i, j;

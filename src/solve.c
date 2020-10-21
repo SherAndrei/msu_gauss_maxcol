@@ -2,6 +2,7 @@
 #include "error.h"
 #include "print.h"
 #include "multiply.h"
+#include "extract.h"
 #include "gauss_inverse.h"
 
 double fabs(double);
@@ -30,7 +31,6 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 	const int l = n - k * m;
 	// погрешность
     double ERROR;
-	// double ERROR = norm(A, n) * 1e-16;
 	// минимальная норма обратной матрицы
 	double min = 0.;
 	// строчка с минимальной матрицей
@@ -79,7 +79,6 @@ int solve(const int n, const int m, double* A, double* B, double* X)
             ERROR = norm(V1, av) * eps;
 			identity(V2, av);
 			if(gauss_inverse(V1, V2, av, ERROR) == 0) {
-                
 				current = norm(V2, av);
 				if(fabs(current - min) < ERROR) {
 					copy(V2, V3, av, ah);
@@ -101,11 +100,16 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 			for(i = 0; i * m < n; i++) {
 				pi = A + min_i * n * m + i * m * m;
 				pj = A + j * n * m + i * m * m;
-				for(r = 0; r < m * m; r++) {
-					current = pi[r];
-					pi[r]   = pj[r];
-					pj[r]   = current;			
+
+                copy(pi, V1, m, m);
+                copy(pj, pi, m, m);
+                copy(V1, pj, m, m);
 				}
+            pi = B + min_i * m;
+            pj = B + j * m;
+            copy(pi, V1, m, 1);
+            copy(pj, pi, m, 1);
+            copy(V1, pj, m, 1);
 			}
 		}
 
@@ -130,23 +134,26 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 		for(i = j + 1; i * m < n; i++) {
 			q = (i < k) ? m : l;
 			pi = A + i * n * m + j * q * m;  
+            copy(pi, V1, q, m);
 			// каждую умножаем и вычитаем с подходящим коэффицентом
 			for(c = j + 1; c * m < n; c++) {
 				ah = (c < k) ? m : l;
-				pa = A + i * n * m + c * q * m;
-				pj = A + j * n * m + c * q * m;
+    			pa = A + i * n * m + c * q  * m;
+    			pj = A + j * n * m + c * av * m;
 				
-				conv_basic_multiply(pi, q, m, pj, m, ah, V1);
-				for(r = 0; r < q * ah; r++) {
-					pa[r] -= V1[r];
-				}
+    			conv_basic_multiply(V1, q, m, pj, m, ah, V3);
+                extract(pa, V3, q, ah);
+    			// for(r = 0; r < q * ah; r++) {
+    			// 	pa[r] -= V3[r];
+    			// }
 			}
 			pa = B + i * m;
 			pj = B + j * m;
-			conv_basic_multiply(pi, q, m, pj, m, 1, V2);
-			for(r = 0; r < q; r++) {
-				pa[r] -= V2[r];
-			} 
+    		conv_basic_multiply(V1, q, m, pj, m, 1, V3);
+    		extract(pa, V3, 1, q);
+            // for(r = 0; r < q; r++) {
+    		// 	pa[r] -= V3[r];
+    		// } 
             null(pi, q, m);
 		}
 
@@ -161,11 +168,8 @@ int solve(const int n, const int m, double* A, double* B, double* X)
     copy(B + k * m, X + k * m, l, 1);
     // идем с последней строчки
     for(i = k - 1; i >= 0; i--) {
-        // pi = X + i * m;
-        // pj = B + i * m;
         copy(B + i * m, X + i * m, m, 1);
         // сумма наших матриц
-        // null(V1, m, 1);
         for(j = i + 1; j * m < n; j++) {
             ah = (j < k) ? m : l;
             // A_{i,j}
@@ -199,17 +203,16 @@ double residual(const double* A, const double* B, const double* X, const int n, 
 	return 0.;
 }
 
-//Норма разности с ответом
+//Векторная норма разности с ответом
 double difference(const double* const answer, const int dim)
 {
     double result = 0;
     int i;
-    for(i = 0; i < dim; i += 2) {
-        result += (answer[i] - 1) * (answer[i] - 1);
+    for(i = 0; i < dim; i++) {
+        result += fabs(answer[i] - !(i & 1));
     }
 
-    return sqrt(result);
+    return result;
 }
 
-#endif // NULL
 #undef eps
