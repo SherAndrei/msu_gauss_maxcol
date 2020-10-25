@@ -13,16 +13,16 @@ CC      := gcc
 CFLAGS  := -mfpmath=sse -fstack-protector-all -W -Wall -Wextra -Wunused -Wcast-align \
 		  -Werror -pedantic -pedantic-errors -Wfloat-equal -Wpointer-arith -Wformat-security \
 		  -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long  \
-		  -Wcast-qual -Wno-suggest-attribute=format-Werror -Wpedantic -I$(HDR)
+		  -Wcast-qual -Wno-suggest-attribute=format -Wpedantic -Werror=declaration-after-statement -I$(HDR) \
+		  -Wmissing-declarations -O3
 LDFLAGS := -fsanitize=address -fno-omit-frame-pointer
 LIBS    := -lm
 
 #Variables
-EXE   := $(BIN)/main
+EXE   := ./a.out
+HDRS  := $(wildcard $(HDR)/*.h)
 SRCS  := $(wildcard $(SRC)/*.c)
-# OBJS  := $(wildcard $(OBJ)/*.o)
 OBJS  := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))	
-
 # $@ - the left side of the :
 # $^ - the right side of the :
 # $< - the first item in the dependencies list
@@ -31,10 +31,10 @@ OBJS  := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
 $(EXE): $(OBJS) | $(BIN)
 	$(CC) $^ -o $@ $(LIBS) $(LDFLAGS) 
 
-$(OBJ)/main.o: $(SRC)/main.c $(SRCS) | $(OBJ)
+$(OBJ)/main.o: $(SRC)/main.c $(SRCS) $(HDRS) | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
-$(OBJ)/fill.o: $(SRC)/fill.c $(SRC)/matrix.c $(HDR)/fill.h $(HDR)/error.h $(HDR)/matrix.h | $(OBJ)
+$(OBJ)/fill.o: $(SRC)/fill.c $(HDR)/fill.h $(SRC)/matrix.c $(HDR)/matrix.h ${SRC}/error.c $(HDR)/error.h ${SRC}/multiply.c ${HDR}/multiply.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
 $(OBJ)/gauss_inverse.o: $(SRC)/gauss_inverse.c $(HDR)/gauss_inverse.h | $(OBJ)
@@ -49,7 +49,13 @@ $(OBJ)/print.o : $(SRC)/print.c $(HDR)/print.h | $(OBJ)
 $(OBJ)/error.o : $(SRC)/error.c $(HDR)/error.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
-$(OBJ)/solve.o : $(SRC)/solve.c $(SRC)/matrix.c $(SRC)/gauss_inverse.c $(HDR)/error.h $(HDR)/multiply.h $(HDR)/extract.h | $(OBJ)
+$(OBJ)/solve.o : $(SRC)/solve.c $(SRC)/matrix.c $(HDR)/matrix.h $(SRC)/gauss_inverse.c $(HDR)/gauss_inverse.h $(SRC)/error.c $(HDR)/error.h  $(HDR)/multiply.h ${SRC}/multiply.c $(HDR)/extract.h ${SRC}/extract.c | $(OBJ)
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+${OBJ}/multiply.o : ${SRC}/multiply.c $(HDR)/multiply.h | ${OBJ}
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+${OBJ}/extract.o : ${SRC}/extract.c $(HDR)/extract.h  | ${OBJ}
 	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(BIN) $(OBJ):
@@ -58,10 +64,10 @@ $(BIN) $(OBJ):
 .PHONY: clean debug release
 
 clean:
-	$(RMDIR) $(OBJ) $(BIN)
+	$(RMDIR) $(OBJ) $(BIN) $(EXE)
 
-debug: CFLAGS += -g -O0 -DDEBUG
-debug: $(EXE) 
+# debug: CFLAGS += -g -O0 -DDEBUG
+# debug: $(EXE) 
 
-release: CFLAGS += -O3 -DRELEASE
-release: $(EXE)
+# release: CFLAGS += -O3 -DRELEASE
+# release: $(EXE)

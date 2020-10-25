@@ -10,11 +10,6 @@
 void formula_zero(double* const A, const int n, const int m, 
 				  const char* const filename, int* errno)
 {
-	FILE* inp = fopen(filename, "r");
-    if(inp == NULL) {
-        *errno = 6;
-		return;
-	}
 
 	int i, j, p, q, av, ah;
 	// количество блоков размера n
@@ -22,6 +17,11 @@ void formula_zero(double* const A, const int n, const int m,
 	// длина/высота остаточного блока
 	const int l = n - k * m;
 	int counter = 0;
+	FILE* inp = fopen(filename, "r");
+    if(inp == NULL) {
+        *errno = 6;
+		return;
+	}
 
 	for(i = 0; i * m < n; i++) {
 		av = i < k ? m : l;

@@ -1,5 +1,5 @@
 DATA="./tests/files"
-prog="./bin/main"
+prog="./a.out"
 
 if [[ -x ${prog} ]]; then
     echo "########################### ${prog} ###########################"

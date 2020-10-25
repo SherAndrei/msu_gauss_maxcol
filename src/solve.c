@@ -1,3 +1,4 @@
+#include "solve.h"
 #include "matrix.h"
 #include "error.h"
 #include "multiply.h"
@@ -17,7 +18,7 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 {
 	// итераторы
 	int i = 0, j = 0, r = 0, q = 0;
-	// вспомогательные матрицы
+	// вспомогателusьные матрицы
 	double *V1, *V2, *V3;
 	// указатель на текущий блок
 	double *pa ;
