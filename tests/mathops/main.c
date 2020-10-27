@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "mult.h"
 #include "extract.h"
 
 double* create_array(FILE* input, int num_of_elems)
@@ -68,9 +69,10 @@ int main()
     printf("%d %d \n", bv, bh);
 	print_matrix(B, bv, bh);
 
-    extract(A, B, av, ah);
+    conv_basic_multiply(A, av, ah, B, bv, bh, C);
+    // extract(A, B, av, ah);
 
-	print_matrix(A, av, ah);
+	print_matrix(C, av, bh);
     free(A);
     free(B);
     free(C);
