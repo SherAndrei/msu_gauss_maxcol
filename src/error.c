@@ -43,7 +43,7 @@ int error(const int error)
 		break;
 	}
     case 10: {
-        perror("Algotithm is inaplicable!\n");
+        printf("Algotithm is inaplicable!\n");
         break;
     }
 	default:

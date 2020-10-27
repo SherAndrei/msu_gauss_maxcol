@@ -19,7 +19,7 @@ void extract(double* lhs, double *rhs, const int v, const int h)
         }
     }
     if(h2 < h) {
-        for(i = 0; i < v2 + (v2 == v); i++) {
+        for(i = 0; i < v2; i++) {
             lhs[i * h + h2] -= rhs[i * h + h2];
         }
     }

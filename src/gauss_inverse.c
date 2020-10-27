@@ -9,8 +9,6 @@ static void swap(double* const lhs, double* const rhs)
     *rhs = temp;
 }
 
-#define eps 1e-16
-
 #define A(i,j) A[(i) * n + (j)]
 #define E(i,j) A_inversed[(i) * n + (j)]
 
@@ -26,7 +24,6 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR)
 	double c = 0.;
 	//идем по столбцам
 	for(j = 0; j < n; j++) {
-
 		// назначаем элемент на диагонали главным
 		// и соответстенную строчку
 		max = fabs(A(j,j));
@@ -66,7 +63,7 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR)
 	    	    E(j, k) /= c;
         	}
 		}
-        
+
 		// a_jj = 1
         //вычитаем из всех строчек строчку с максимальным элементом,
         // умноженную на соответствующий коэфф c, чтобы получить нули в столбце 

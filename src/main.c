@@ -15,7 +15,7 @@ int main(int argc, const char* argv[])
 	int errno = 0;
 	int n, m, r, s;
 	// Solving AX = B
-	double *A = NULL, *B = NULL, *X = NULL, resid;
+	double *A = NULL, *B = NULL, *X = NULL, res;
 	time_t start, end, start_solving, end_solving;
 
 	printf(" Usage: [");
@@ -66,8 +66,9 @@ int main(int argc, const char* argv[])
 	//Засекаем время и решаем
 	
 	start_solving = clock();
-	if(solve(n, m, A, B, X) == 0) {
-		
+    errno = solve(n, m, A, B, X); 
+	end_solving = clock();
+    if(errno == 0) {
 		printf(" Solved!\n");
 		print_matrix(A, n, n, m, r);
 		print_matrix(X, n, 1, m, r);
@@ -76,7 +77,7 @@ int main(int argc, const char* argv[])
         free_matrix(X);
         return error(10);
 	}
-	end_solving = clock();
+	
 	
 	if(s == 0) {
 		fill(A, n, m, 0, argv[5], &errno);
@@ -91,13 +92,13 @@ int main(int argc, const char* argv[])
 	fill_right_part(A, B, n, m);
 
 	start = clock();
-    resid = residual(A, B, X, n, m);
+    res = residual(A, B, X, n, m);
 	end = clock();
     printf(" Difference: %10.3e\n", difference(X, n));
 	
     printf(" Time solving : %6.3f sec\n", ((float)(end_solving - start_solving))/ CLOCKS_PER_SEC);
     printf(" Time computing residual: %6.3f sec\n\n", ((float)(end - start))/ CLOCKS_PER_SEC);
-	printf("Residual = %e for s = %d n = %d m = %d\n", resid, s, n, m);
+	printf("Residual = %e for s = %d n = %d m = %d\n", res, s, n, m);
     free_matrix(A);
 	free_matrix(X);
 	return 0;
