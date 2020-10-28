@@ -14,7 +14,7 @@ CFLAGS  := -mfpmath=sse -fstack-protector-all -W -Wall -Wextra -Wunused -Wcast-a
 		  -Werror -pedantic -pedantic-errors -Wfloat-equal -Wpointer-arith -Wformat-security \
 		  -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long  \
 		  -Wcast-qual -Wno-suggest-attribute=format -Wpedantic -Werror=declaration-after-statement -I$(HDR) \
-		  -Wmissing-declarations
+		  -Wmissing-declarations -O3
 LDFLAGS := -fsanitize=address -fno-omit-frame-pointer
 LIBS    := -lm
 
@@ -61,18 +61,13 @@ ${OBJ}/extract.o : ${SRC}/extract.c $(HDR)/extract.h  | ${OBJ}
 $(BIN) $(OBJ):
 	$(MKDIR) $@
 
-.PHONY: all clean debug release test
-
-all: clean release test
+.PHONY: clean debug release
 
 clean:
 	$(RMDIR) $(OBJ) $(BIN) $(EXE)
 
-test:
-	./tests/test.sh | tee log.txt && grep Residual log.txt | tee residual.txt
+# debug: CFLAGS += -g -O0 -D DEBUG
+# debug: $(EXE) 
 
-debug: CFLAGS += -g -O0 -D DEBUG
-debug: $(EXE) 
-
-release: CFLAGS += -O3 -D RELEASE
-release: $(EXE)
+# release: CFLAGS += -O3 -D RELEASE
+# release: $(EXE)

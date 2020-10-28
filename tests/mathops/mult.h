@@ -67,9 +67,9 @@ int conv_basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, do
 	// если не получилось разделить четно, то
 	// повторяем процесс для последнего столбца и строчки
 	// так, как делали раньше
-    if(av3 < av2 && av2 < av) {
-        for(r = av3; r < av; r += 2) {
-            for(t = 0; t < bh2; t += 2) {
+    if((av - av3) == 2) {
+	    for(r = av3; r < av; r += 2) {
+		    for(t = 0; t < (bh & (~1)); t += 2) {
                 c00 = 0., c01 = 0.;
                 c10 = 0., c11 = 0.;
                 for(q = 0; q < ah; q++) {
@@ -84,51 +84,66 @@ int conv_basic_multiply(double* a, int av, int ah, double* b, int bv, int bh, do
                 c[(r + 1) * bh + (t + 1)] = c11;
             }
         }
-        c22 = 0.;
-        for(q = 0; q < ah; q++)
-            c22 += a[av2 * ah + q] * b[q * bh + bh2];
-        c[av2 * bh + bh2] = c22;
-    }
-    if(bh3 < bh2 && bh2 < bh) {
-        for(r = 0; r < av2; r += 2)
-            for(t = bh3; t < bh; t += 2) {
-                c00 = 0., c01 = 0.;
-                c10 = 0., c11 = 0.;
-                for(q = 0; q < ah; q++) {
-                    c00 += a[(r + 0) * ah + q] * b[q * bh + (t + 0)];
-                    c01 += a[(r + 0) * ah + q] * b[q * bh + (t + 1)];
-                    c10 += a[(r + 1) * ah + q] * b[q * bh + (t + 0)];
-                    c11 += a[(r + 1) * ah + q] * b[q * bh + (t + 1)];
+        if((bh & (~1)) < bh) {
+            for(r = av3; r < av; r++)
+                for(t = (bh & (~1)); t < bh; t++) {
+                    c00 = 0.;
+                    for(q = 0; q < ah; q++) {
+                        c00 += a[(r + 0) * ah + q] * b[q * bh + (t + 0)];
+                    }
+                    c[(r + 0) * bh + (t + 0)] = c00;
                 }
-                c[(r + 0) * bh + (t + 0)] = c00;
-                c[(r + 0) * bh + (t + 1)] = c01;
-                c[(r + 1) * bh + (t + 0)] = c10;
-                c[(r + 1) * bh + (t + 1)] = c11;
-            }
-        c22 = 0.;
-        for(q = 0; q < ah; q++)
-            c22 += a[av2 * ah + q] * b[q * bh + bh2];
-        c[av2 * bh + bh2] = c22;
+        }
     }
 
-	if((av3 < av && av2 == av) || (av == 1)) {
-        for(r = av3; r < av; r++) {
-            for(t = 0; t < bh; t++) {
-                c00 = 0.;
-                for(q = 0; q < ah; q++) 
-                    c00 += a[r * ah + q] * b[q * bh + t];
-                c[r * bh + t] = c00;
+    if((bh - bh3) == 2) {
+	    for(r = 0; r < (av & (~1)); r += 2) {
+		    for(t = bh3; t < bh; t += 2) {
+                c00 = 0., c01 = 0.;
+                c10 = 0., c11 = 0.;
+                for(q = 0; q < ah; q++) {
+                    c00 += a[(r + 0) * ah + q] * b[q * bh + (t + 0)];
+                    c01 += a[(r + 0) * ah + q] * b[q * bh + (t + 1)];
+                    c10 += a[(r + 1) * ah + q] * b[q * bh + (t + 0)];
+                    c11 += a[(r + 1) * ah + q] * b[q * bh + (t + 1)];
+                }
+                c[(r + 0) * bh + (t + 0)] = c00;
+                c[(r + 0) * bh + (t + 1)] = c01;
+                c[(r + 1) * bh + (t + 0)] = c10;
+                c[(r + 1) * bh + (t + 1)] = c11;
             }
         }
-	}
-	if((bh3 < bh && bh2 == bh) || (bh == 1)) {
-		for(r = 0; r < av; r++)	
-			for(t = bh3; t < bh; t++) {
-				c00 = 0.;
-				for(q = 0; q < ah; q++)
-					c00 += a[r * ah + q] * b[q * bh + t];
-				c[r * bh + t] = c00;
+        if((av & (~1)) < av) {
+            for(r = (av & (~1)); r < av; r++)
+                for(t = bh3; t < bh; t++) {
+                    c00 = 0.;
+                    for(q = 0; q < ah; q++) {
+                        c00 += a[(r + 0) * ah + q] * b[q * bh + (t + 0)];
+                    }
+                    c[(r + 0) * bh + (t + 0)] = c00;
+                }
+        }
+    }
+
+	if(av - av3 == 1) {
+        for(r = av3; r < av; r++)
+		    for(t = 0; t < bh; t++) {
+			    c00 = 0.;
+			    for(q = 0; q < ah; q++)
+				    c00 += a[r * ah + q] * b[q * bh + t];
+			    c[r * bh + t] = c00;
 		}	
+	}
+	if(bh - bh3 == 1) {
+		for(r = 0; r < av; r++)	{
+            for(t = bh3; t < bh; t++)
+            {
+            	c00 = 0.;
+    			for(q = 0; q < ah; q++)
+    				c00 += a[r * ah + q] * b[q * bh + t];
+    			c[r * bh + t] = c00;
+            }
+        }
 	}
 	return 0;
 }

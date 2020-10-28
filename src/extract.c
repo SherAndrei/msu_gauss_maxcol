@@ -21,23 +21,6 @@ void extract(double* lhs, double *rhs, const int v, const int h)
         }
     }
 
-    // if(v - v3 == 2) {
-    //     for(i = v3; i < v; i += 2) {
-    //         for(j = 0; j < (h & (~1)); j += 2) {
-    //             lhs[(i + 0) * h + (j + 0)] -= rhs[(i + 0) * h + (j + 0)];
-    //             lhs[(i + 1) * h + (j + 0)] -= rhs[(i + 1) * h + (j + 0)];
-    //             lhs[(i + 0) * h + (j + 1)] -= rhs[(i + 0) * h + (j + 1)];
-    //             lhs[(i + 1) * h + (j + 1)] -= rhs[(i + 1) * h + (j + 1)];
-    //         }
-    //     }
-    //     if((h & (~1)) < h) {
-    //         for(i = v3; i < v; i ++) {
-    //             lhs[(i + 0) * h + (h & (~1))] -= rhs[(i + 0) * h + (h & (~1))];
-    //         }
-    //     }
-
-    // }
-
     if(v3 < v) {
         for(i = v3; i < v; i++) {
             for(j = 0; j < h3 + (h - h3); j++) {

@@ -7,6 +7,11 @@
 
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
+// Блок A_{i,j}
+#define A(i, j) (A + (i) * n * m + (j) * av * m)
+// Элемент (p, q) блока A_{i,j}
+#define a(p, q) (A(i,j) + (p) * ah + (q))
+
 void formula_zero(double* const A, const int n, const int m, 
 				  const char* const filename, int* errno)
 {
@@ -159,10 +164,6 @@ void fill_right_part(const double* const A, double* const B, const int n, const 
 
 	for(i = 0; i < n; i++) 
 		B[i] = 0;
-	//	
-	// TODO: upgrage for cash
-	//
-
 	//идем по строчкам
 	for(i = 0; i * m < n; i++) {
 		av = i < k ? m : l;

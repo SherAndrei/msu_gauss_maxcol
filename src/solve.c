@@ -14,11 +14,6 @@ double fabs(double);
 #define NULL ((void *)0)
 #endif
 
-#ifdef DEBUG
-#include <stdio.h>
-#define PRINTV 15
-#endif
-
 //Найти корни и записать в answer
 int solve(const int n, const int m, double* A, double* B, double* X)
 {
@@ -101,11 +96,6 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 			free_matrix(V3);
 			return -1;
 		}
-#ifdef DEBUG
-        printf("Initial matrix:\n");
-        print_matrix(A, n, n, m, PRINTV);    
-        print_matrix(B, n, 1, m, PRINTV);    
-#endif
 		// I_min_i <--> I_j
 		if(min_i != j) {
 			for(i = 0; i * m < n; i++) {
@@ -122,19 +112,10 @@ int solve(const int n, const int m, double* A, double* B, double* X)
             copy(pi, V1, m, 1);
             copy(pj, pi, m, 1);
             copy(V1, pj, m, 1);
-#ifdef DEBUG
-        printf("Swap %d and %d:\n", min_i, j);
-        print_matrix(A, n, n, m, PRINTV);    
-        print_matrix(B, n, 1, m, PRINTV);    
-#endif
 		}
 
 		//A_{j,j} = E, V_3 * (A_{j,j+1},...,A_{j,k+1},B_{j})
         identity(pa, av);
-#ifdef DEBUG
-        print_matrix(A, n, n, m, PRINTV);    
-        print_matrix(B, n, 1, m, PRINTV);    
-#endif
 		for(i = j + 1; i * m < n; i++) {
 			r = (i < k) ? m : l;
 			pi = A + j * n * m + i * av * m; 
@@ -146,11 +127,7 @@ int solve(const int n, const int m, double* A, double* B, double* X)
 		copy(pi, V1, av, 1);
 		conv_basic_multiply(V3, av, ah, V1, av, 1, V2);
 		copy(V2, pi, av, 1);
-#ifdef DEBUG
-        printf("Multiplying:\n");
-        print_matrix(A, n, n, m, PRINTV);    
-        print_matrix(B, n, 1, m, PRINTV);    
-#endif
+
 		// A_{ i, c } = A_{ i, c } - A_{ i, j } x A_{ j, c }
 		//      pa    =     pa     -     pi     x     pj 
 		// идем по строчкам вниз
@@ -172,11 +149,6 @@ int solve(const int n, const int m, double* A, double* B, double* X)
     		conv_basic_multiply(V1, q, m, pj, m, 1, V3);
     		extract(pa, V3, 1, q);
             null(pi, q, m);
-#ifdef DEBUG
-        printf("formula:\n");
-        print_matrix(A, n, n, m, PRINTV);    
-        print_matrix(B, n, 1, m, PRINTV);    
-#endif
 		}
         min = 0.;
 		min_i = 0;
@@ -203,11 +175,6 @@ int solve(const int n, const int m, double* A, double* B, double* X)
             null(pi, m, ah); 
         }
     }
-#ifdef DEBUG
-    print_matrix(A, n, n, m, PRINTV);    
-    print_matrix(B, n, 1, m, PRINTV);  
-    print_matrix(X, n, 1, m, PRINTV);  
-#endif
     free_matrix(V1);
 	free_matrix(V2);
 	free_matrix(V3);
