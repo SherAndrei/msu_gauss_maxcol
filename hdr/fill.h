@@ -1,7 +1,7 @@
 #pragma once
 
 void formula_zero (double* const matrix, const int matrix_dim, const int block_dim, 
-					const char* const filename, int* errno);
+                    const char* const filename, int* errno);
 void formula_one  (double* const matrix, const int matrix_dim, const int block_dim);
 void formula_two  (double* const matrix, const int matrix_dim, const int block_dim);
 void formula_three(double* const matrix, const int matrix_dim, const int block_dim);

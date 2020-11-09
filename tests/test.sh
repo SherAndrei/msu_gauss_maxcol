@@ -18,9 +18,9 @@ if [[ -x ${prog} ]]; then
     timeout 1m ${prog} 6 3 6 0 "${DATA}/e.txt" 
     echo "=========================== f.txt  ==========================="
     timeout 1m ${prog} 6 3 6 0 "${DATA}/f.txt" 
-    for((s = 1; s <= 4; s++));
-        do for((n = 3; n <= 30; n++))
-            do for((m = 3; m <= $n; m += 3))
+    for ((s = 1; s <= 4; s++));
+        do for ((n = 3; n <= 30; n++))
+            do for ((m = 3; m <= $n; m += 3))
                 do echo "=========================== n = $n, m = $m, s = $s  ===========================" 
                    ${prog} $n $m 0 $s
                 done
