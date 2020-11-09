@@ -1,6 +1,6 @@
 #pragma once
 
-double* alloc_matrix(const int length, const int width);
+double* alloc_matrix(const int size);
 void free_matrix(double* matrix);
 
 double  norm(const double* const A, const int n);

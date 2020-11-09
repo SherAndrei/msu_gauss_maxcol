@@ -1,4 +1,6 @@
-(( n = 4000, r = 0, m = 70, s = 1 ));\
-for ((cnt = 1; cnt <= 20; cnt++));\
-    do ./a.out $n $m $r $s;\
+
+(( r = 0, m = 60, s = 1 ));           \
+for ((n = 1000; n <= 16000; n *= 2));  \
+    do 
+        ./a.out $n $m $r $s | grep 'elapsed' ; \
 done

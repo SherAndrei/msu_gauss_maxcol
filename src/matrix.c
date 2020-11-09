@@ -3,8 +3,8 @@
 
 double fabs(double);
 
-double* alloc_matrix(const int length, const int height) {
-    return (double*) malloc (length * height * sizeof(double));
+double* alloc_matrix(const int size) {
+    return (double*) malloc (size * sizeof(double));
 }
 
 void free_matrix(double* matrix) {

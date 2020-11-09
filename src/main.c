@@ -2,6 +2,10 @@
     Метод Гаусса с выбором максимального элемента по столбцу
     решения системы линейных уравнений
 */
+#define _GNU_SOURCE
+#include <sys/sysinfo.h>
+#include <sched.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <time.h>
 #include "matrix.h"
@@ -14,8 +18,18 @@ int main(int argc, const char* argv[]) {
     int errno = 0;
     int n, m, r, s;
     // Solving AX = B
-    double *A = NULL, *B = NULL, *X = NULL, res;
+    // V1, V2, V3 вспомогательные матрицы
+    double *A  = NULL, *B  = NULL, *X  = NULL,
+           *V1 = NULL, *V2 = NULL, *V3 = NULL;
+    double res;
     time_t start, end, start_solving, end_solving;
+    // Чтобы зафиксировать выделение памяти только на одном процессоре
+    cpu_set_t cpu;
+    int nprocs = 0;
+    nprocs = get_nprocs();
+    CPU_ZERO(&cpu);
+    CPU_SET(nprocs - 1, &cpu);
+    sched_setaffinity(getpid(), sizeof(cpu), &cpu);
 
     printf(" Usage: [");
     for (int i = 1; i < argc - 1; i++)
@@ -34,9 +48,8 @@ int main(int argc, const char* argv[]) {
     if (r > n || r < 0)  return error(4);
 
     // выделяем память под матрицу и под правый вектор
-    A = alloc_matrix(n, n + 1);
+    A = alloc_matrix(n * n);
     if (A == NULL) return error(5);
-
     if (s == 0 && argc == 6) {
         fill(A, n, m, 0, argv[5], &errno);
         if (errno > 0) {
@@ -50,28 +63,62 @@ int main(int argc, const char* argv[]) {
         return error(1);
     }
 
-    B = A + n * n;
+    B = alloc_matrix(n * 1);
+    if (B == NULL) {
+        free_matrix(A);
+        return error(5);
+    }
     fill_right_part(A, B, n, m);
 
-    X = alloc_matrix(n, 1);
+    X = alloc_matrix(n * 1);
     if (X == NULL) {
         free_matrix(A);
+        free_matrix(B);
         return error(5);
     }
 
     print_matrix(A, n, n, m, r);
     print_matrix(B, n, 1, m, r);
 
+    V1 = alloc_matrix(m * m);
+    if (V1 == NULL) {
+        free_matrix(A);
+        free_matrix(B);
+        free_matrix(X);
+        return error(5);
+    }
+    V2 = alloc_matrix(m * m);
+    if (V2 == NULL) {
+        free_matrix(A);
+        free_matrix(B);
+        free_matrix(X);
+        free_matrix(V1);
+        return error(5);
+    }
+    V3 = alloc_matrix(m * m);
+    if (V3 == NULL) {
+        free_matrix(A);
+        free_matrix(B);
+        free_matrix(X);
+        free_matrix(V1);
+        free_matrix(V2);
+        return error(5);
+    }
+
     start_solving = clock();
-    errno = solve(n, m, A, B, X);
+    errno = solve(n, m, A, B, X, V1, V2, V3);
     end_solving = clock();
     if (errno == 0) {
         printf(" Solved!\n");
-        print_matrix(A, n, n, m, r);
+        // print_matrix(A, n, n, m, r);
         print_matrix(X, n, 1, m, r);
     } else {
         free_matrix(A);
+        free_matrix(B);
         free_matrix(X);
+        free_matrix(V1);
+        free_matrix(V2);
+        free_matrix(V3);
         return error(10);
     }
 
@@ -79,8 +126,12 @@ int main(int argc, const char* argv[]) {
         fill(A, n, m, 0, argv[5], &errno);
         if (errno > 0) {
             free_matrix(A);
+            free_matrix(B);
             free_matrix(X);
-            error(errno);
+            free_matrix(V1);
+            free_matrix(V2);
+            free_matrix(V3);
+            return error(errno);
         }
     } else {
         fill(A, n, m, s, NULL, NULL);
@@ -92,12 +143,17 @@ int main(int argc, const char* argv[]) {
     res = residual(A, B, X, n, m);
     end = clock();
     printf(" Difference: %10.3e\n", difference(X, n));
-
-    printf(" Time solving : %6.3f sec\n", ((float)(end_solving - start_solving))/ CLOCKS_PER_SEC);
     printf(" Time computing residual: %6.3f sec\n\n", ((float)(end - start))/ CLOCKS_PER_SEC);
-    printf("Residual = %e for s = %d n = %d m = %d\n", res, s, n, m);
+    printf("%s : residual = %e elapsed = %.2f for s = %d n = %d m = %d\n",
+            argv[0], res, ((float)(end_solving - start_solving))/ CLOCKS_PER_SEC,
+            s, n, m);
     free_matrix(A);
+    free_matrix(B);
     free_matrix(X);
+    free_matrix(V1);
+    free_matrix(V2);
+    free_matrix(V3);
+
     return 0;
 }
 

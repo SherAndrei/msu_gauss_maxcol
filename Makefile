@@ -15,7 +15,7 @@ CFLAGS  := -mfpmath=sse -fstack-protector-all -W -Wall -Wextra -Wunused -Wcast-a
 		  -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long  \
 		  -Wcast-qual -Wno-suggest-attribute=format -Wpedantic -Werror=declaration-after-statement -I$(HDR) \
 		  -Wmissing-declarations -O3
-LDFLAGS := -fsanitize=address -fno-omit-frame-pointer
+LDFLAGS := # -fsanitize=address -fno-omit-frame-pointer -static-libasan
 LIBS    := -lm
 
 #Variables
@@ -28,7 +28,7 @@ OBJS  := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
 # $< - the first item in the dependencies list
 # -c flag says to generate the object file
 
-$(EXE): $(OBJS) | $(BIN)
+$(EXE): $(OBJS)
 	$(CC) $^ -o $@ $(LIBS) $(LDFLAGS) 
 
 $(OBJ)/main.o: $(SRC)/main.c $(SRCS) $(HDRS) | $(OBJ)
@@ -58,13 +58,13 @@ ${OBJ}/multiply.o : ${SRC}/multiply.c $(HDR)/multiply.h | ${OBJ}
 ${OBJ}/extract.o : ${SRC}/extract.c $(HDR)/extract.h  | ${OBJ}
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-$(BIN) $(OBJ):
+$(OBJ):
 	$(MKDIR) $@
 
 .PHONY: clean debug release
 
 clean:
-	$(RMDIR) $(OBJ) $(BIN) $(EXE)
+	$(RMDIR) $(OBJ) $(EXE)
 
 # debug: CFLAGS += -g -O0 -D DEBUG
 # debug: $(EXE) 

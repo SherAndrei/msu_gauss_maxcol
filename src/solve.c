@@ -15,15 +15,14 @@ double fabs(double);
 #endif
 
 // Найти корни и записать в answer
-int solve(const int n, const int m, double* A, double* B, double* X) {
+// help - дополнительная память под три блока
+int solve(const int n, const int m,
+          double* A, double* B, double* X,
+          double* V1, double* V2, double* V3) {
     // итераторы
     int i = 0, j = 0, r = 0, q = 0;
-    // вспомогателusьные матрицы
-    double *V1, *V2, *V3;
-    // указатель на текущий блок
-    double *pa;
-    // указатель на очередной блок в столбце/в строчке
-    double *pi, *pj;
+    // вспомогательные указатели
+    double *pa = NULL, *pi = NULL, *pj = NULL;
     // размер текущего блока av * ah
     int av = 0, ah = 0;
     // количество блоков
@@ -40,11 +39,6 @@ int solve(const int n, const int m, double* A, double* B, double* X) {
     int c = 0;
     // текущая норма
     double current = 0.;
-
-    if ((V1 = alloc_matrix(3 * m, m)) == NULL)
-        return error(5);
-    V2 = V1 + m * m;
-    V3 = V2 + m * m;
 
     for (j = 0; j * m < n; j++) {
         // A_{j, j} square!
@@ -86,7 +80,6 @@ int solve(const int n, const int m, double* A, double* B, double* X) {
         }
         // if all in column noninvertable return
         if (c == k - j + (av == l)) {
-            free_matrix(V1);
             return -1;
         }
         // I_min_i <--> I_j
@@ -108,7 +101,7 @@ int solve(const int n, const int m, double* A, double* B, double* X) {
         }
 
         // A_{j, j} = E, V_3 * (A_{j, j+1},...,A_{j,k+1},B_{j})
-        identity(pa, av);
+        // identity(pa, av);
         for (i = j + 1; i * m < n; i++) {
             r = (i < k) ? m : l;
             pi = A + j * n * m + i * av * m;
@@ -141,7 +134,7 @@ int solve(const int n, const int m, double* A, double* B, double* X) {
             pj = B + j * m;
             multiply(V1, q, m, pj, m, 1, V3);
             extract(pa, V3, 1, q);
-            null(pi, q, m);
+            // null(pi, q, m);
         }
         min = 0.;
         min_i = 0;
@@ -165,11 +158,10 @@ int solve(const int n, const int m, double* A, double* B, double* X) {
 
             multiply(pi, m, ah, pj, ah, 1, V2);
             extract((X + i * m), V2, 1, m);
-            null(pi, m, ah);
+            // null(pi, m, ah);
         }
     }
 
-    free_matrix(V1);
     return 0;
 }
 
