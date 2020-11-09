@@ -15,7 +15,7 @@
 #include "solve.h"
 
 int main(int argc, const char* argv[]) {
-    int errno = 0;
+    int errcode = 0;
     int n, m, r, s;
     // Solving AX = B
     // V1, V2, V3 вспомогательные матрицы
@@ -34,107 +34,64 @@ int main(int argc, const char* argv[]) {
     printf(" Usage: [");
     for (int i = 1; i < argc - 1; i++)
         printf("%s, ", argv[i]);
-    printf("%s]\n\n", argv[argc - 1]);
+    printf("%s]\n", argv[argc - 1]);
 
     if (!((argc == 5 || argc == 6) &&
         (sscanf(argv[1], "%d", &n) == 1) &&
         (sscanf(argv[2], "%d", &m) == 1) &&
         (sscanf(argv[3], "%d", &r) == 1) &&
-        (sscanf(argv[4], "%d", &s) == 1)))
+        (sscanf(argv[4], "%d", &s) == 1) &&
+        (n >= 0)           &&
+        (m >  0 && m <= n) &&
+        (r >= 0 && r <= n)))
             return error(1);
 
-    if (n < 0)           return error(2);
-    if (m > n || m <= 0) return error(3);
-    if (r > n || r < 0)  return error(4);
-
     // выделяем память под матрицу и под правый вектор
-    A = alloc_matrix(n * n);
-    if (A == NULL) return error(5);
-    if (s == 0 && argc == 6) {
-        fill(A, n, m, 0, argv[5], &errno);
-        if (errno > 0) {
-            free_matrix(A);
-            return error(errno);
-        }
-    } else if ((s > 0 && s < 5) && argc == 5) {
+    A  = alloc_matrix(n * n), B  = alloc_matrix(n * 1), X  = alloc_matrix(n * 1);
+    V1 = alloc_matrix(m * m), V2 = alloc_matrix(m * m), V3 = alloc_matrix(m * m);
+    if (A  == NULL || B  == NULL || X  == NULL ||
+        V1 == NULL || V2 == NULL || V3 == NULL) {
+        free_matrix(A),  free_matrix(B),  free_matrix(X);
+        free_matrix(V1), free_matrix(V2), free_matrix(V3);
+        return error(2);
+    }
+
+    if (s == 0 && argc == 6)
+        fill(A, n, m, 0, argv[5], &errcode);
+    else if ((s > 0 && s < 5) && argc == 5)
         fill(A, n, m, s, NULL, NULL);
-    } else {
-        free_matrix(A);
-        return error(1);
+    else
+        errcode = 1;
+
+    if (errcode > 0) {
+        free_matrix(A),  free_matrix(B),  free_matrix(X);
+        free_matrix(V1), free_matrix(V2), free_matrix(V3);
+        return error(errcode);
     }
 
-    B = alloc_matrix(n * 1);
-    if (B == NULL) {
-        free_matrix(A);
-        return error(5);
-    }
     fill_right_part(A, B, n, m);
-
-    X = alloc_matrix(n * 1);
-    if (X == NULL) {
-        free_matrix(A);
-        free_matrix(B);
-        return error(5);
-    }
 
     print_matrix(A, n, n, m, r);
     print_matrix(B, n, 1, m, r);
 
-    V1 = alloc_matrix(m * m);
-    if (V1 == NULL) {
-        free_matrix(A);
-        free_matrix(B);
-        free_matrix(X);
-        return error(5);
-    }
-    V2 = alloc_matrix(m * m);
-    if (V2 == NULL) {
-        free_matrix(A);
-        free_matrix(B);
-        free_matrix(X);
-        free_matrix(V1);
-        return error(5);
-    }
-    V3 = alloc_matrix(m * m);
-    if (V3 == NULL) {
-        free_matrix(A);
-        free_matrix(B);
-        free_matrix(X);
-        free_matrix(V1);
-        free_matrix(V2);
-        return error(5);
-    }
-
     start_solving = clock();
-    errno = solve(n, m, A, B, X, V1, V2, V3);
+    errcode = solve(n, m, A, B, X, V1, V2, V3);
     end_solving = clock();
-    if (errno == 0) {
-        printf(" Solved!\n");
-        // print_matrix(A, n, n, m, r);
-        print_matrix(X, n, 1, m, r);
-    } else {
-        free_matrix(A);
-        free_matrix(B);
-        free_matrix(X);
-        free_matrix(V1);
-        free_matrix(V2);
-        free_matrix(V3);
-        return error(10);
+    if (errcode < 0) {
+        free_matrix(A),  free_matrix(B),  free_matrix(X);
+        free_matrix(V1), free_matrix(V2), free_matrix(V3);
+        return error(5);
     }
-
-    if (s == 0) {
-        fill(A, n, m, 0, argv[5], &errno);
-        if (errno > 0) {
-            free_matrix(A);
-            free_matrix(B);
-            free_matrix(X);
-            free_matrix(V1);
-            free_matrix(V2);
-            free_matrix(V3);
-            return error(errno);
-        }
-    } else {
+    printf(" Result:\n");
+    print_matrix(X, n, 1, m, r);
+    if (s == 0)
+        fill(A, n, m, 0, argv[5], &errcode);
+    else
         fill(A, n, m, s, NULL, NULL);
+    if (errcode > 0) {
+        free_matrix(A),  free_matrix(B),  free_matrix(X);
+        free_matrix(V1), free_matrix(V2), free_matrix(V3);
+        return error(errcode);
     }
 
     fill_right_part(A, B, n, m);
@@ -147,13 +104,9 @@ int main(int argc, const char* argv[]) {
     printf("%s : residual = %e elapsed = %.2f for s = %d n = %d m = %d\n",
             argv[0], res, ((float)(end_solving - start_solving))/ CLOCKS_PER_SEC,
             s, n, m);
-    free_matrix(A);
-    free_matrix(B);
-    free_matrix(X);
-    free_matrix(V1);
-    free_matrix(V2);
-    free_matrix(V3);
 
+    free_matrix(A),  free_matrix(B),  free_matrix(X);
+    free_matrix(V1), free_matrix(V2), free_matrix(V3);
     return 0;
 }
 

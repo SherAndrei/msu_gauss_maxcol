@@ -22,7 +22,7 @@ void formula_zero(double* const A, const int n, const int m,
     int counter = 0;
     FILE* inp = fopen(filename, "r");
     if (inp == NULL) {
-        *errno = 6;
+        *errno = 3;
         return;
     }
 
@@ -41,7 +41,7 @@ void formula_zero(double* const A, const int n, const int m,
         }
     }
     if (counter != n * n)
-        *errno = 7;
+        *errno = 4;
     fclose(inp);
 }
 
