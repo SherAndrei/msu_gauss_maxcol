@@ -22,7 +22,7 @@ int main(int argc, const char* argv[]) {
     double *A  = NULL, *B  = NULL, *X  = NULL,
            *V1 = NULL, *V2 = NULL, *V3 = NULL;
     double res;
-    time_t start, end, start_solving, end_solving;
+    double t_resid, t_solving;
     // Чтобы зафиксировать выделение памяти только на одном процессоре
     cpu_set_t cpu;
     int nprocs = 0;
@@ -74,9 +74,9 @@ int main(int argc, const char* argv[]) {
     print_matrix(A, n, n, m, r);
     print_matrix(B, n, 1, m, r);
 
-    start_solving = clock();
+    t_solving = clock();
     errcode = solve(n, m, A, B, X, V1, V2, V3);
-    end_solving = clock();
+    t_solving = (clock() - t_solving) / CLOCKS_PER_SEC;
     if (errcode < 0) {
         free_matrix(A),  free_matrix(B),  free_matrix(X);
         free_matrix(V1), free_matrix(V2), free_matrix(V3);
@@ -96,13 +96,13 @@ int main(int argc, const char* argv[]) {
 
     fill_right_part(A, B, n, m);
 
-    start = clock();
+    t_resid = clock();
     res = residual(A, B, X, n, m);
-    end = clock();
+    t_resid = (clock() - t_resid) / CLOCKS_PER_SEC;
     printf(" Difference: %10.3e\n", difference(X, n));
-    printf(" Time computing residual: %6.3f sec\n\n", ((float)(end - start))/ CLOCKS_PER_SEC);
+    printf(" Time computing residual: %6.3f sec\n\n", t_resid);
     printf("%s : residual = %e elapsed = %.2f for s = %d n = %d m = %d\n",
-            argv[0], res, ((float)(end_solving - start_solving))/ CLOCKS_PER_SEC,
+            argv[0], res, t_solving,
             s, n, m);
 
     free_matrix(A),  free_matrix(B),  free_matrix(X);

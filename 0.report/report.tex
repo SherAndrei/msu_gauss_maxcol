@@ -1,4 +1,4 @@
-\documentclass[12pt]{article}
+\documentclass[12pt]{report}
  
 %Russian-specific packages
 %--------------------------------------
@@ -26,28 +26,50 @@
     \tableofcontents
     
 \newpage
-    \section{Постановка задачи}
+    \chapter{Линейный способ решения}
+    \section{Постановка задачи} \label{lin:task}
 
     \quad Пусть дана матрица $A$ размера $n \times n$, вектор $b$ размера $n$. 
     Требуется найти решение линейной системы $Ax = b$, используя метод
     Гаусса с выбором максимального элмента по столбцу.
     
-    \section{Алгоритм}
-        \subsection{Разбиение матрицы на блоки}
-        \quad Разобьем матрицу $A$ на блоки размера $m \times m$ 
-        по формуле $ n = k \cdot m + l $:
-        \[
-        \left(
-        \begin{array}{ccccc|c}
-            A_{1,1}^{m \times m}   & A_{1,2}^{m \times m}   & \ldots & A_{1,k}^{m \times m}   & A_{1,k+1}^{m \times l}    & B^{m}_{1}   \\
-            A_{2,1}^{m \times m}   & A_{2,2}^{m \times m}   & \ldots & A_{2,k}^{m \times m}   & A_{2,k+1}^{m \times l}    & B^{m}_{2}   \\
-            \ldots                 & \ldots                 & \ldots & \ldots                 & \ldots                    & \ldots      \\
-            A_{k,1}^{m \times m}   & A_{k,2}^{m \times m}   & \ldots & A_{k,k}^{m \times m}   & A_{k,k+1}^{m \times l}    & B^{m}_{k}   \\
-            A_{k+1,1}^{l \times m} & A_{k+1,2}^{l \times m} & \ldots & A_{k+1,k}^{l \times m} & A_{k+1, k+1}^{l \times l} & B^{l}_{k+1} \\
-        \end{array}
-        \right)
-        \]
+
+    \section{Хранение в памяти} \label{lin:mem}
+    \quad Разобьем матрицу $A$ на блоки размера $m \times m$ 
+    по формуле $ n = k \cdot m + l $:
+    \[
+    \left(
+    \begin{array}{ccccc|c}
+        A_{1,1}^{m \times m}   & A_{1,2}^{m \times m}   & \ldots & A_{1,k}^{m \times m}   & A_{1,k+1}^{m \times l}    & B^{m}_{1}   \\
+        A_{2,1}^{m \times m}   & A_{2,2}^{m \times m}   & \ldots & A_{2,k}^{m \times m}   & A_{2,k+1}^{m \times l}    & B^{m}_{2}   \\
+        \ldots                 & \ldots                 & \ldots & \ldots                 & \ldots                    & \ldots      \\
+        A_{k,1}^{m \times m}   & A_{k,2}^{m \times m}   & \ldots & A_{k,k}^{m \times m}   & A_{k,k+1}^{m \times l}    & B^{m}_{k}   \\
+        A_{k+1,1}^{l \times m} & A_{k+1,2}^{l \times m} & \ldots & A_{k+1,k}^{l \times m} & A_{k+1, k+1}^{l \times l} & B^{l}_{k+1} \\
+    \end{array}
+    \right)
+    \]
+    \quad Матрицу $A$ храним в памяти таким образом: 
+        \begin{align*}
+            A = \{&a_{1,1}, a_{1,2},  \ldots , a_{1,m},
+                    a_{2,1}, a_{2,2}, \ldots , a_{2,m}, \ldots,
+                    a_{m,1}, a_{m,2}, \ldots , a_{m,m}, \\
+                    &a_{1,m+1}, a_{1,m+2}, \ldots , a_{1,2m}, \ldots, a_{n,n}, 
+                    b_{1},\ldots, b_{n} \}
+        \end{align*}
+        \quad    В блочном виде:
+        \begin{align*}
+            A = \{&A_{1,1}, A_{1,2},\ldots , A_{1,k+1},
+            A_{2,1}, A_{2,2},      \ldots , A_{2,k+1}, \ldots, \\
+            &A_{k+1,1}, A_{k+1,2},  \ldots , A_{k+1,k+1},B_{1},\ldots, B_{k+1} \}
+        \end{align*}
+
+        Тогда указатель на блок $A_{i, j}$ $: A + (i - 1) \cdot n \cdot m + (j - 1) \cdot last\_i \cdot m,$. \\
+        Указатель на элемент $(p,q)$ этой же матрицы: $A + (i - 1) \cdot n \cdot m + (j - 1) \cdot last\_i \cdot m + (p - 1) \cdot last\_j + (q - 1)$,
+        где $ last\_i = i\ <\ k\ ?\ m\ :\ l,\ last\_j = j\ <\ k\ ?\ m\ :\ l$.
         
+        Указатель на $i$-ый элемент $B$: $A + n \cdot n + (i - 1)$
+
+    \section{Алгоритм} \label{lin:alg}
         \subsection{Прямой ход}
 
         \begin{enumerate}
@@ -169,29 +191,7 @@
         \right)
         \]
     
-        \section{Хранение в памяти}
-    \quad Матрицу $A$ храним в памяти таким образом: 
-        \begin{align*}
-            A = \{&a_{1,1}, a_{1,2},  \ldots , a_{1,m},
-                    a_{2,1}, a_{2,2}, \ldots , a_{2,m}, \ldots,
-                    a_{m,1}, a_{m,2}, \ldots , a_{m,m}, \\
-                    &a_{1,m+1}, a_{1,m+2}, \ldots , a_{1,2m}, \ldots, a_{n,n}, 
-                    b_{1},\ldots, b_{n} \}
-        \end{align*}
-        \quad    В блочном виде:
-        \begin{align*}
-            A = \{&A_{1,1}, A_{1,2},\ldots , A_{1,k+1},
-            A_{2,1}, A_{2,2},      \ldots , A_{2,k+1}, \ldots, \\
-            &A_{k+1,1}, A_{k+1,2},  \ldots , A_{k+1,k+1},B_{1},\ldots, B_{k+1} \}
-        \end{align*}
-
-        Тогда указатель на блок $A_{i, j}$ $: A + (i - 1) \cdot n \cdot m + (j - 1) \cdot last\_i \cdot m,$. \\
-        Указатель на элемент $(p,q)$ этой же матрицы: $A + (i - 1) \cdot n \cdot m + (j - 1) \cdot last\_i \cdot m + (p - 1) \cdot last\_j + (q - 1)$,
-        где $ last\_i = i\ <\ k\ ?\ m\ :\ l,\ last\_j = j\ <\ k\ ?\ m\ :\ l$.
-        
-        Указатель на $i$-ый элемент $B$: $A + n \cdot n + (i - 1)$
-
-        \section{Оценка сложности}
+        \section{Оценка сложности алгоритма} \label{lin:compl}
         \begin{enumerate}
             \item Нахождение обратной матрицы для $A^{n \times n}$: $\frac{8}{3}n^3 + O(n^2)$
             \item Умножение матриц $A^{n \times m} \times A^{m \times l}$: $2mnl - nl$
@@ -229,7 +229,7 @@
         На шаге \ref{alg:mult}: \par
             \quad 1 умножение матрицы $l \times l$ на матрицу $l \times 1$
 
-            Сложнось прямого хода:
+        Сложнось прямого хода:
         \begin{multline*}
             \sum_{i=0}^{k-1} ((i + 1) \frac{8}{3}m^3 + i(i + 1) (2m^3 - m^2) + i^2m^2 + (1+2i)(2m^2l-ml) + 2iml \\ + 2ml^2 - ml + l^2 + (1 + i)(2m^2-m) + im + 2ml - l + l) + \frac{8}{3}l^3+2l^2-l
         \end{multline*}
@@ -241,11 +241,39 @@
         Сложность обратного хода:
         \[ \sum^{k-2}_{i=0} (i(2m^2-m) + im) + k(ml - m) + km \]
 
-        \subsection{Сложность алгоритма}
+        \subsection{Итоговая сложность}
         Сложность всего алгоритма: 
         \[\boxed{\frac{2}{3}n^3 + \frac{4}{3}mn^2 + \frac{2}{3}m^2n + O(n^2)} \]
 
         При $m = 1$: $\frac{2}{3}n^3 + O(n^2)$;
 
         При $m = n$: $\frac{8}{3}n^3 + O(n^2)$;
+    
+    \chapter{Многопоточный способ решения}
+        \section{Постановка задачи} \label{thread:task}
+        Условие такое же, как и в пункте \ref{lin:task}, но теперь требуется задействовать 
+        потоки для решения задачи. 
+        %\section{Краткое описание решения}
+
+        % Напишем multithread функцию, которая будет принимать на вход
+        
+        \section{Хранение в памяти} \label{thread:mem}
+        \quad Разобьем матрицу $A$ на блоки размера $m \times m$ 
+        по формуле $ n = k \cdot m + l $ аналогично пункту \ref{lin:mem}:
+        \[
+        \left(
+        \begin{array}{ccccc|c}
+            A_{1,1}^{m \times m}   & A_{1,2}^{m \times m}   & \ldots & A_{1,k}^{m \times m}   & A_{1,k+1}^{m \times l}    & B^{m}_{1}   \\
+            A_{2,1}^{m \times m}   & A_{2,2}^{m \times m}   & \ldots & A_{2,k}^{m \times m}   & A_{2,k+1}^{m \times l}    & B^{m}_{2}   \\
+            \ldots                 & \ldots                 & \ldots & \ldots                 & \ldots                    & \ldots      \\
+            A_{k,1}^{m \times m}   & A_{k,2}^{m \times m}   & \ldots & A_{k,k}^{m \times m}   & A_{k,k+1}^{m \times l}    & B^{m}_{k}   \\
+            A_{k+1,1}^{l \times m} & A_{k+1,2}^{l \times m} & \ldots & A_{k+1,k}^{l \times m} & A_{k+1, k+1}^{l \times l} & B^{l}_{k+1} \\
+        \end{array}
+        \right)
+        \]
+        % Помимо этого заведем буфер $Buf$ размера $ n \times 1 $ в качестве вспомогательного массива 
+        \section{Алгоритм} \label{thread:alg}
+        \subsection{Прямой ход}
+
+
 \end{document}
