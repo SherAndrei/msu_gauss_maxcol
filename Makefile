@@ -14,14 +14,15 @@ CC      := gcc
 CFLAGS  := -mfpmath=sse -fstack-protector-all -W -Wall -Wextra -Wunused -Wcast-align \
 		  -Werror -pedantic -pedantic-errors -Wfloat-equal -Wpointer-arith -Wformat-security \
 		  -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long  \
-		  -Wcast-qual -Wno-suggest-attribute=format-Werror -Wpedantic -I$(HDR)
-LDFLAGS := -fsanitize=address -fno-omit-frame-pointer
+		  -Wcast-qual -Wno-suggest-attribute=format -Wpedantic -Werror=declaration-after-statement -I$(HDR) \
+		  -Wmissing-declarations -O3
+LDFLAGS := # -fsanitize=address -fno-omit-frame-pointer -static-libasan
 LIBS    := -lm
 
 #Variables
-EXE   := $(BIN)/main
+EXE   := ./a.out
+HDRS  := $(wildcard $(HDR)/*.h)
 SRCS  := $(wildcard $(SRC)/*.c)
-# OBJS  := $(wildcard $(OBJ)/*.o)
 OBJS  := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))	
 BNCHS := $(wildcard $(BENCH)/*.txt)
 
@@ -30,13 +31,13 @@ BNCHS := $(wildcard $(BENCH)/*.txt)
 # $< - the first item in the dependencies list
 # -c flag says to generate the object file
 
-$(EXE): $(OBJS) | $(BIN)
+$(EXE): $(OBJS)
 	$(CC) $^ -o $@ $(LIBS) $(LDFLAGS) 
 
-$(OBJ)/main.o: $(SRC)/main.c $(SRCS) | $(OBJ)
+$(OBJ)/main.o: $(SRC)/main.c $(HDRS) | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
-$(OBJ)/fill.o: $(SRC)/fill.c $(SRC)/matrix.c $(HDR)/fill.h $(HDR)/error.h $(HDR)/matrix.h | $(OBJ)
+$(OBJ)/fill.o: $(SRC)/fill.c $(HDR)/fill.h $(HDR)/matrix.h $(HDR)/error.h ${HDR}/multiply.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
 $(OBJ)/gauss_inverse.o: $(SRC)/gauss_inverse.c $(HDR)/gauss_inverse.h | $(OBJ)
@@ -51,19 +52,25 @@ $(OBJ)/print.o : $(SRC)/print.c $(HDR)/print.h | $(OBJ)
 $(OBJ)/error.o : $(SRC)/error.c $(HDR)/error.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
-$(OBJ)/solve.o : $(SRC)/solve.c $(SRC)/matrix.c $(SRC)/gauss_inverse.c $(HDR)/error.h $(HDR)/multiply.h $(HDR)/extract.h | $(OBJ)
+$(OBJ)/solve.o : $(SRC)/solve.c $(HDR)/matrix.h $(HDR)/gauss_inverse.h $(HDR)/error.h $(HDR)/multiply.h $(HDR)/extract.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-$(BIN) $(OBJ) $(BENCH):
+${OBJ}/multiply.o : ${SRC}/multiply.c $(HDR)/multiply.h | ${OBJ}
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+${OBJ}/extract.o : ${SRC}/extract.c $(HDR)/extract.h  | ${OBJ}
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+$(OBJ) $(BENCH):
 	$(MKDIR) $@
 
-.PHONY: clear debug release
+.PHONY: clean debug release
 
 clear:
-	$(RMDIR) $(OBJ) $(BIN) $(BNCHS)
+	$(RMDIR) $(OBJ) $(BNCHS)
 
-debug: CFLAGS += -g -O0 -DDEBUG
-debug: $(EXE) 
+# debug: CFLAGS += -g -O0 -D DEBUG
+# debug: $(EXE) 
 
-release: CFLAGS += -O3 -DRELEASE
-release: $(EXE)
+# release: CFLAGS += -O3 -D RELEASE
+# release: $(EXE)

@@ -1,6 +1,9 @@
 .vscode/
 obj/
 bin/
+*.out
+*.txt
+
 0.report/*
 !0.report/*.tex
 !0.report/*.pdf
