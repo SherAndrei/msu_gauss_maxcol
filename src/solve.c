@@ -6,9 +6,7 @@
 #include "gauss_inverse.h"
 #include "print.h"
 
-#define BENCH 0
-
-#if BENCH
+#ifdef BENCH
 #include <time.h>
 #include <stdio.h>
 #endif
@@ -25,6 +23,9 @@ double fabs(double);
 int solve(const int n, const int m,
           double* A, double* B, double* X,
           double* V1, double* V2, double* V3) {
+#ifdef BENCH
+    double temp, t_gauss = 0., t_swap = 0., t_mult = 0., t_form = 0., t_reverse = 0.;
+#endif
     // итераторы
     int i = 0, j = 0, r = 0, q = 0;
     // вспомогательные указатели
@@ -54,6 +55,9 @@ int solve(const int n, const int m,
         // A_{j, j} --> V1
         // V_min = (A_{j, j})^(-1)
         // min = ||V_min||
+#ifdef BENCH
+        temp = clock();
+#endif
         copy(pa, V1, av, ah);
         identity(V3, ah);
         if (gauss_inverse(V1, V3, av, ERROR) == 0) {
@@ -84,10 +88,17 @@ int solve(const int n, const int m,
                 c++;
             }
         }
+#ifdef BENCH
+        temp = (clock() - temp) / CLOCKS_PER_SEC;
+        t_gauss += temp;
+#endif
         // if all in column noninvertable return
         if (c == k - j + (av == l)) {
             return -1;
         }
+#ifdef BENCH
+        temp = clock();
+#endif
         // I_min_i <--> I_j
         if (min_i != j) {
             for (i = 0; i * m < n; i++) {
@@ -105,7 +116,12 @@ int solve(const int n, const int m,
             copy(pj, pi, m, 1);
             copy(V1, pj, m, 1);
         }
+#ifdef BENCH
+        temp = (clock() - temp) / CLOCKS_PER_SEC;
+        t_swap += temp;
 
+        temp = clock();
+#endif
         // A_{j, j} = E, V_3 * (A_{j, j+1},...,A_{j,k+1},B_{j})
         // identity(pa, av);
         for (i = j + 1; i * m < n; i++) {
@@ -119,7 +135,12 @@ int solve(const int n, const int m,
         copy(pi, V1, av, 1);
         multiply(V3, av, ah, V1, av, 1, V2);
         copy(V2, pi, av, 1);
+#ifdef BENCH
+        temp = (clock() - temp) / CLOCKS_PER_SEC;
+        t_mult += temp;
 
+        temp = clock();
+#endif
         // A_{ i, c } = A_{ i, c } - A_{ i, j } x A_{ j, c }
         //      pa    =     pa     -     pi     x     pj
         // идем по строчкам вниз
@@ -142,12 +163,20 @@ int solve(const int n, const int m,
             extract(pa, V3, 1, q);
             // null(pi, q, m);
         }
+#ifdef BENCH
+        temp = (clock() - temp) / CLOCKS_PER_SEC;
+        t_form += temp;
+#endif
+
         min = 0.;
         min_i = 0;
         c = 0;
     }
     // матрица теперь верхнедиагональная
 
+#ifdef BENCH
+        t_reverse = clock();
+#endif
     // последние X_{l} нам уже известны
     copy(B + k * m, X + k * m, l, 1);
     // идем с последней строчки
@@ -167,15 +196,16 @@ int solve(const int n, const int m,
             // null(pi, m, ah);
         }
     }
-#if BENCH 
-    end = clock();
-    timer5 += end - start;
+#ifdef BENCH
+        t_reverse = (clock() - t_reverse) / CLOCKS_PER_SEC;
 
-    fprintf(inp1, "%lu\n", timer1);
-    fprintf(inp2, "%lu\n", timer2);
-    fprintf(inp3, "%lu\n", timer3);
-    fprintf(inp4, "%lu\n", timer4);
-    fprintf(inp5, "%lu\n", timer5); 
+    printf("gauss %f\n"
+           "swap  %f\n"
+           "mult  %f\n"
+           "form  %f\n"
+           "rev   %f\n", t_gauss, t_swap, t_mult, t_form, t_reverse);
+#endif
+
 
     return 0;
 }

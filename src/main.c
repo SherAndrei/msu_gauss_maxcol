@@ -21,8 +21,11 @@ int main(int argc, const char* argv[]) {
     // V1, V2, V3 вспомогательные матрицы
     double *A  = NULL, *B  = NULL, *X  = NULL,
            *V1 = NULL, *V2 = NULL, *V3 = NULL;
+    double t_solving;
+#ifndef BENCH
     double res;
-    double t_resid, t_solving;
+    double t_resid;
+
     // Чтобы зафиксировать выделение памяти только на одном процессоре
     cpu_set_t cpu;
     int nprocs = 0;
@@ -35,7 +38,7 @@ int main(int argc, const char* argv[]) {
     for (int i = 1; i < argc - 1; i++)
         printf("%s, ", argv[i]);
     printf("%s]\n", argv[argc - 1]);
-
+#endif
     if (!((argc == 5 || argc == 6) &&
         (sscanf(argv[1], "%d", &n) == 1) &&
         (sscanf(argv[2], "%d", &m) == 1) &&
@@ -71,19 +74,22 @@ int main(int argc, const char* argv[]) {
 
     fill_right_part(A, B, n, m);
 
+#ifndef BENCH
     print_matrix(A, n, n, m, r);
     print_matrix(B, n, 1, m, r);
-
+#endif
     t_solving = clock();
     errcode = solve(n, m, A, B, X, V1, V2, V3);
     t_solving = (clock() - t_solving) / CLOCKS_PER_SEC;
+#ifndef BENCH
+    printf(" Result:\n");
+    print_matrix(X, n, 1, m, r);
+#endif
     if (errcode < 0) {
         free_matrix(A),  free_matrix(B),  free_matrix(X);
         free_matrix(V1), free_matrix(V2), free_matrix(V3);
         return error(5);
     }
-    printf(" Result:\n");
-    print_matrix(X, n, 1, m, r);
     if (s == 0)
         fill(A, n, m, 0, argv[5], &errcode);
     else
@@ -96,14 +102,20 @@ int main(int argc, const char* argv[]) {
 
     fill_right_part(A, B, n, m);
 
+#ifndef BENCH
     t_resid = clock();
     res = residual(A, B, X, n, m);
     t_resid = (clock() - t_resid) / CLOCKS_PER_SEC;
+
     printf(" Difference: %10.3e\n", difference(X, n));
     printf(" Time computing residual: %6.3f sec\n\n", t_resid);
     printf("%s : residual = %e elapsed = %.2f for s = %d n = %d m = %d\n",
             argv[0], res, t_solving,
             s, n, m);
+#else 
+    printf("all %f\n", t_solving);
+#endif
+
 
     free_matrix(A),  free_matrix(B),  free_matrix(X);
     free_matrix(V1), free_matrix(V2), free_matrix(V3);

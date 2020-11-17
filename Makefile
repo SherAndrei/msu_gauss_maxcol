@@ -7,7 +7,6 @@ BIN 	:= ./bin
 OBJ 	:= ./obj
 HDR 	:= ./hdr
 SRC 	:= ./src
-BENCH   := ./bench
 
 #Compiler features
 CC      := gcc
@@ -24,7 +23,6 @@ EXE   := ./a.out
 HDRS  := $(wildcard $(HDR)/*.h)
 SRCS  := $(wildcard $(SRC)/*.c)
 OBJS  := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))	
-BNCHS := $(wildcard $(BENCH)/*.txt)
 
 # $@ - the left side of the :
 # $^ - the right side of the :
@@ -61,13 +59,16 @@ ${OBJ}/multiply.o : ${SRC}/multiply.c $(HDR)/multiply.h | ${OBJ}
 ${OBJ}/extract.o : ${SRC}/extract.c $(HDR)/extract.h  | ${OBJ}
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-$(OBJ) $(BENCH):
+$(OBJ):
 	$(MKDIR) $@
 
 .PHONY: clean debug release
 
-clear:
-	$(RMDIR) $(OBJ) $(BNCHS)
+bench: CFLAGS += -DBENCH
+bench: $(EXE)
+
+clean:
+	$(RMDIR) $(OBJ) $(EXE)
 
 # debug: CFLAGS += -g -O0 -D DEBUG
 # debug: $(EXE) 
