@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "mult.h"
 #include "extract.h"
+#include "mult_and_extr.h"
 
 double* create_array(FILE* input, int num_of_elems) {
     int i;
@@ -25,6 +26,12 @@ void print_matrix(double* a, int av, int ah) {
     putchar('\n');
 }
 
+void fill_array(double* array, size_t size, double val) {
+    for (int i = 0; i < size; i++) {
+        array[i] = val;
+    }
+}
+
 int main() {
     FILE* inp;
     int av, ah, bv, bh;
@@ -45,7 +52,7 @@ int main() {
         return -1;
     }
     fclose(inp);
-    inp = fopen("b.txt", "r");
+    inp = fopen("a.txt", "r");
 
     if (fscanf(inp, "%d%d", &bv, &bh) != 2) {
         printf("Error dimensions B!\n");
@@ -63,15 +70,23 @@ int main() {
     fclose(inp);
 
     double* C = (double*)malloc(av * bh * sizeof(double));
+    fill_array(C, av * bh, 3.);
     printf("%d %d \n", av, ah);
     print_matrix(A, av, ah);
     printf("%d %d \n", bv, bh);
     print_matrix(B, bv, bh);
 
-    multiply(A, av, ah, B, bv, bh, C);
-    // extract(A, B, av, ah);
-
-    print_matrix(C, av, bh);
+    // multiply(A, av, ah, B, bv, bh, C);
+    extract(A, B, av, ah);
+    // if (multiply_and_extract(A, av, ah, B, bv, bh, C) < 0) {
+        // printf("wrong!\n");
+        // free(A);
+        // free(B);
+        // free(C);
+        // return -1;
+    // }
+    print_matrix(A, av, ah);
+    // print_matrix(C, av, bh);
     free(A);
     free(B);
     free(C);

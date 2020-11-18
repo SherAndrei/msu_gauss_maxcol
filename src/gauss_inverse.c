@@ -13,11 +13,12 @@ static void swap(double* const lhs, double* const rhs) {
 
 int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR) {
     // итераторы
-    int i, j, k;
+    int i, j;
+    const int n2 = n & (~1);
     // максимальный элемент по столбцу
     double max = 0.;
     // строчка и столбец с максимальным элементом
-    int max_i = 0.;
+    int m = 0;
     // коэффициент
     double c = 0.;
     // идем по столбцам
@@ -25,40 +26,41 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR) {
         // назначаем элемент на диагонали главным
         // и соответстенную строчку
         max = fabs(A(j, j));
-        max_i = j;
+        m = j;
 
         // ищем максимальный элемент в столбце
         // и строчку с ним
         for (i = j; i < n; i++) {
             if (fabs(A(i, j)) > max) {
-                max_i = i;
-                max   = A(i, j);
+                m = i;
+                max   = fabs(A(i, j));
             }
         }
 
-        if (fabs(max) <= ERROR) {
+        if (max <= ERROR) {
             return -1;
         }
 
-        if (max_i != j) {
+        if (m != j) {
             // меняем строчки местами
-            for (i = 0; i < j; i++)
-                swap(&(E(j, i)), &(E(max_i, i)));
+            for (i = 0; i < j; i++) {
+                swap(&(E(j, i)), &(E(m, i)));
+            }
             for (i = j; i < n; i++) {
-                swap(&(A(j, i)), &(A(max_i, i)));
-                swap(&(E(j, i)), &(E(max_i, i)));
+                swap(&(A(j, i)), &(A(m, i)));
+                swap(&(E(j, i)), &(E(m, i)));
             }
         }
         // Так как элемент a_jj на диагонали != 0, то
         // разделим j уравнение на него
-        c = A(j, j);
+        c = 1. / A(j, j);
         if (fabs(c - 1) > ERROR) {
-            for (k = 0; k < j + 1; k++)
-                E(j, k) /= c;
-            A(j, j) = 1;
-            for (k = j + 1; k < n; k++) {
-                A(j, k) /= c;
-                E(j, k) /= c;
+            for (m = 0; m < j + 1; m++)
+                E(j, m) *= c;
+            // A(j, j) = 1.;
+            for (m = j + 1; m < n; m++) {
+                A(j, m) *= c;
+                E(j, m) *= c;
             }
         }
 
@@ -68,13 +70,13 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR) {
         for (i = j + 1; i < n; i++) {
             c = A(i, j);
             if (fabs(c) > ERROR) {
-                for (k = 0; k < j + 1; k++) {
-                    E(i, k) -= c * E(j, k);
+                for (m = 0; m < j + 1; m++) {
+                    E(i, m) -= c * E(j, m);
                 }
-                A(i, j) = 0;
-                for (k = j + 1; k < n; k++) {
-                    A(i, k) -= c * A(j, k);
-                    E(i, k) -= c * E(j, k);
+                // A(i, j) = 0.;
+                for (m = j + 1; m < n; m++) {
+                    A(i, m) -= c * A(j, m);
+                    E(i, m) -= c * E(j, m);
                 }
             }
         }
@@ -86,9 +88,14 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR) {
         for (i = 0; i < j; i++) {
             c = A(i, j);
             if (fabs(c) > ERROR) {
-                for (k = 0; k < n; k++)
-                    E(i, k) -= c * E(j, k);
-                A(i, j) = 0;
+                for (m = 0; m < n2; m+=2) {
+                    E(i, m)     -= c * E(j, m);
+                    E(i, m + 1) -= c * E(j, m + 1);
+                }
+                if (n2 < n) {
+                    E(i, n2) -= c * E(j, n2);
+                }
+                // A(i, j) = 0.;
             }
         }
     }
