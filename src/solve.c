@@ -1,10 +1,8 @@
 #include "solve.h"
 #include "matrix.h"
 #include "error.h"
-#include "multiply.h"
-#include "extract.h"
 #include "gauss_inverse.h"
-#include "print.h"
+#include "operations.h"
 
 #ifdef BENCH
 #include <time.h>
@@ -58,8 +56,13 @@ int solve(const int n, const int m,
 #ifdef BENCH
         temp = clock();
 #endif
-        copy(pa, V1, av, ah);
-        identity(V3, ah);
+        // copying pa --> V1 && identity(V3)
+        for (r = 0; r < av; r++) {
+            for (q = 0; q < ah; q++) {
+                V1[r * ah + q] = pa[r * ah + q];
+                V3[r * ah + q] = (r == q);
+            }
+        }
         if (gauss_inverse(V1, V3, av, ERROR) == 0) {
             min   = norm(V3, av);
             min_i = j;
@@ -73,8 +76,15 @@ int solve(const int n, const int m,
         for (i = j + 1; i * m + l < n; i++) {
             pi = A + i * n * m + j * av * m;
 
-            copy(pi, V1, av, ah);
-            identity(V2, av);
+            // copying pi --> V1 && identity(V2)
+            for (r = 0; r < av; r++) {
+                for (q = 0; q < ah; q++) {
+                    V1[r * ah + q] = pi[r * ah + q];
+                    V2[r * ah + q] = (r == q);
+                }
+            }
+            // copy(pi, V1, av, ah);
+            // identity(V2, av);
             if (gauss_inverse(V1, V2, av, ERROR) == 0) {
                 current = norm(V2, av);
                 if (fabs(current - min) > ERROR) {
@@ -106,15 +116,23 @@ int solve(const int n, const int m,
                 pi = A + min_i * n * m + i * m * m;
                 pj = A + j * n * m + i * m * m;
 
-                copy(pi, V1, m, q);
-                copy(pj, pi, m, q);
-                copy(V1, pj, m, q);
+                // swap pi and pj
+                for (r = 0; r < m; r++) {
+                    for (c = 0; c < q; c++) {
+                        current       = pi[r * q + c];
+                        pi[r * q + c] = pj[r * q + c];
+                        pj[r * q + c] = current;
+                    }
+                }
             }
             pi = B + min_i * m;
             pj = B + j * m;
-            copy(pi, V1, m, 1);
-            copy(pj, pi, m, 1);
-            copy(V1, pj, m, 1);
+            // swap pi and pj
+            for (r = 0; r < m; r++) {
+                current = pi[r];
+                pi[r]   = pj[r];
+                pj[r]   = current;
+            }
         }
 #ifdef BENCH
         temp = (clock() - temp) / CLOCKS_PER_SEC;
@@ -154,14 +172,17 @@ int solve(const int n, const int m,
                 pa = A + i * n * m + c * q  * m;
                 pj = A + j * n * m + c * av * m;
 
-                multiply(V1, q, m, pj, m, ah, V3);
+                copy(pj, V2, m, ah);
+                // multiply_and_extract(V1, q, m, V2, m, ah, pa);
+                multiply(V1, q, m, V2, m, ah, V3);
                 extract(pa, V3, q, ah);
             }
             pa = B + i * m;
             pj = B + j * m;
-            multiply(V1, q, m, pj, m, 1, V3);
+            copy(pj, V2, m, 1);
+            // multiply_and_extract(V1, q, m, V2, m, 1, pa);
+            multiply(V1, q, m, V2, m, 1, V3);
             extract(pa, V3, 1, q);
-            // null(pi, q, m);
         }
 #ifdef BENCH
         temp = (clock() - temp) / CLOCKS_PER_SEC;
@@ -193,7 +214,6 @@ int solve(const int n, const int m,
 
             multiply(pi, m, ah, pj, ah, 1, V2);
             extract((X + i * m), V2, 1, m);
-            // null(pi, m, ah);
         }
     }
 #ifdef BENCH

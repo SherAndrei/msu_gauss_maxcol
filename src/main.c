@@ -81,15 +81,17 @@ int main(int argc, const char* argv[]) {
     t_solving = clock();
     errcode = solve(n, m, A, B, X, V1, V2, V3);
     t_solving = (clock() - t_solving) / CLOCKS_PER_SEC;
-#ifndef BENCH
-    printf(" Result:\n");
-    print_matrix(X, n, 1, m, r);
-#endif
     if (errcode < 0) {
         free_matrix(A),  free_matrix(B),  free_matrix(X);
         free_matrix(V1), free_matrix(V2), free_matrix(V3);
         return error(5);
     }
+#ifndef BENCH
+       else {
+    printf(" Result:\n");
+    print_matrix(X, n, 1, m, r);
+    }
+#endif 
     if (s == 0)
         fill(A, n, m, 0, argv[5], &errcode);
     else

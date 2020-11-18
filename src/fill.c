@@ -3,7 +3,6 @@
 #include <math.h>
 #include "fill.h"
 #include "error.h"
-#include "matrix.h"
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 

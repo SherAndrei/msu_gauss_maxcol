@@ -35,7 +35,7 @@ $(EXE): $(OBJS)
 $(OBJ)/main.o: $(SRC)/main.c $(HDRS) | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
-$(OBJ)/fill.o: $(SRC)/fill.c $(HDR)/fill.h $(HDR)/matrix.h $(HDR)/error.h ${HDR}/multiply.h | $(OBJ)
+$(OBJ)/fill.o: $(SRC)/fill.c $(HDR)/fill.h $(HDR)/matrix.h $(HDR)/error.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
 $(OBJ)/gauss_inverse.o: $(SRC)/gauss_inverse.c $(HDR)/gauss_inverse.h | $(OBJ)
@@ -50,13 +50,10 @@ $(OBJ)/print.o : $(SRC)/print.c $(HDR)/print.h | $(OBJ)
 $(OBJ)/error.o : $(SRC)/error.c $(HDR)/error.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
-$(OBJ)/solve.o : $(SRC)/solve.c $(HDR)/matrix.h $(HDR)/gauss_inverse.h $(HDR)/error.h $(HDR)/multiply.h $(HDR)/extract.h | $(OBJ)
+$(OBJ)/solve.o : $(SRC)/solve.c $(HDR)/matrix.h $(HDR)/gauss_inverse.h $(HDR)/error.h $(HDR)/operations.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)
 
-${OBJ}/multiply.o : ${SRC}/multiply.c $(HDR)/multiply.h | ${OBJ}
-	$(CC) -c $< -o $@ $(CFLAGS)
-
-${OBJ}/extract.o : ${SRC}/extract.c $(HDR)/extract.h  | ${OBJ}
+${OBJ}/operations.o : ${SRC}/operations.c $(HDR)/operations.h | ${OBJ}
 	$(CC) -c $< -o $@ $(CFLAGS)
 
 $(OBJ):
