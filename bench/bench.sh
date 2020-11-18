@@ -7,7 +7,7 @@ else
     echo "Usage: $0 programm_name matrix_size"
     exit
 fi
-amount=20
+amount=40
 m=60
 s=3
 
@@ -22,17 +22,17 @@ make bench > /dev/null
 
 for ((i = 1; i <= ${amount}; i++))
 do
-    ${prog} ${n} ${m} 0 ${s} > log.txt 
+    ${prog} ${n} ${m} 0 ${s} > ./bench/log.txt 
     echo "############ $i ##############" >> full_bench.txt
-    cat log.txt >> full_bench.txt
+    cat ./bench/log.txt >> full_bench.txt
     for name in gauss swap mult form rev all
     do
-        cat log.txt | grep $name >> bench/res/$name.txt
+        cat ./bench/log.txt | grep $name | awk '{print $2}' >> bench/res/$name.txt
     done
 done
 
 echo "########### END #############" >> full_bench.txt
-rm log.txt
+rm ./bench/log.txt
 
 gcc -O3 ./bench/find_avg.c -o ./bench/find_avg
 sleep 1

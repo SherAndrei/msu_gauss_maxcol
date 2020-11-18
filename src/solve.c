@@ -67,6 +67,7 @@ int solve(const int n, const int m,
             min   = norm(V3, av);
             min_i = j;
         } else {
+            min = 0.;
             c++;
         }
 
@@ -87,7 +88,7 @@ int solve(const int n, const int m,
             // identity(V2, av);
             if (gauss_inverse(V1, V2, av, ERROR) == 0) {
                 current = norm(V2, av);
-                if (fabs(current - min) > ERROR) {
+                if (current - min > ERROR) {
                     pj = V2;
                     V2 = V3;
                     V3 = pj;
@@ -185,8 +186,8 @@ int solve(const int n, const int m,
         t_form += temp;
 #endif
 
-        min = 0.;
-        min_i = 0;
+        // min = 0.;
+        // min_i = 0;
         c = 0;
     }
     // матрица теперь верхнедиагональная
@@ -262,8 +263,11 @@ double residual(double* A, double* B, double* X, const int n, const int m) {
     }
     sum = 0.;
     // Норма невязки
-    for (i = 0; i < n; i++) {
-        sum += fabs(B[i] / norm);
+    if (norm > eps) {
+        for (i = 0; i < n; i++) {
+            sum += fabs(B[i]);
+        }
+        sum /= norm;
     }
 
     return sum;

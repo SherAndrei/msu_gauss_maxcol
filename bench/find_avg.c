@@ -7,8 +7,7 @@ double find_average(FILE* file) {
     int i = 0;
     double avg = 0;
     double x;
-    char buf[80];
-    for (i = 1; fscanf(file, "%s %lf", buf, &x) == 2; i++) {
+    for (i = 1; fscanf(file, "%lf", &x) == 1; i++) {
         avg += (x - avg) / i;
     }
     if (!feof(file)) {
