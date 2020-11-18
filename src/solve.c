@@ -173,16 +173,12 @@ int solve(const int n, const int m,
                 pj = A + j * n * m + c * av * m;
 
                 copy(pj, V2, m, ah);
-                // multiply_and_extract(V1, q, m, V2, m, ah, pa);
-                multiply(V1, q, m, V2, m, ah, V3);
-                extract(pa, V3, q, ah);
+                multiply_and_extract(V1, q, m, V2, m, ah, pa);
             }
             pa = B + i * m;
             pj = B + j * m;
             copy(pj, V2, m, 1);
-            // multiply_and_extract(V1, q, m, V2, m, 1, pa);
-            multiply(V1, q, m, V2, m, 1, V3);
-            extract(pa, V3, 1, q);
+            multiply_and_extract(V1, q, m, V2, m, 1, pa);
         }
 #ifdef BENCH
         temp = (clock() - temp) / CLOCKS_PER_SEC;
@@ -212,8 +208,7 @@ int solve(const int n, const int m,
             // X_{j}
             pj = X + j * m;
 
-            multiply(pi, m, ah, pj, ah, 1, V2);
-            extract((X + i * m), V2, 1, m);
+            multiply_and_extract(pi, m, ah, pj, ah, 1, (X + i * m));
         }
     }
 #ifdef BENCH

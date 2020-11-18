@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-// #include "mult.h"
+#include "mult.h"
 #include "extract.h"
 #include "mult_and_extr.h"
 
@@ -52,7 +52,7 @@ int main() {
         return -1;
     }
     fclose(inp);
-    inp = fopen("b.txt", "r");
+    inp = fopen("a.txt", "r");
 
     if (fscanf(inp, "%d%d", &bv, &bh) != 2) {
         printf("Error dimensions B!\n");
