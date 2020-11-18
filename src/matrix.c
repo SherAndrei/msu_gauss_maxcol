@@ -1,13 +1,14 @@
 #include "matrix.h"
 #include <stdlib.h>
+#include <string.h>
 
 double fabs(double);
 
-double* alloc_matrix(const int size) {
+inline double* alloc_matrix(const int size) {
     return (double*) malloc (size * sizeof(double));
 }
 
-void free_matrix(double* matrix) {
+inline void free_matrix(double* matrix) {
     free(matrix);
 }
 
@@ -26,10 +27,8 @@ double  norm(const double* const A, const int n) {
     return max;
 }
 
-void copy(const double* source, double* dest, const int v, const int h) {
-    int i;
-    for (i = 0; i < v * h; i++)
-        dest[i] = source[i];
+inline void copy(const double* source, double* dest, const int v, const int h) {
+    memcpy(dest, source, v * h * sizeof(double));
 }
 
 void identity(double* const matr, const int dim) {

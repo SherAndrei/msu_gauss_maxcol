@@ -109,5 +109,3 @@ int main(int argc, const char* argv[]) {
     free_matrix(V1), free_matrix(V2), free_matrix(V3);
     return 0;
 }
-
-#undef LOG
