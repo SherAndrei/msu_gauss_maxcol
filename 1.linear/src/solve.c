@@ -14,7 +14,7 @@ double fabs(double);
 
 // Найти корни и записать в answer
 // help - дополнительная память под три блока
-int solve(const int n, const int m,
+int solve(int n, int m,
           double* A, double* B, double* X,
           double* V1, double* V2, double* V3) {
     // итераторы
@@ -24,9 +24,9 @@ int solve(const int n, const int m,
     // размер текущего блока av * ah
     int av = 0, ah = 0;
     // количество блоков
-    const int k = n / m;
+    int k = n / m;
     // остаток
-    const int l = n - k * m;
+    int l = n - k * m;
     // погрешность
     double ERROR = (norm(A, n) * eps);
     // минимальная норма обратной матрицы

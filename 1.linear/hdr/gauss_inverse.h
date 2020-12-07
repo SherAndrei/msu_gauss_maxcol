@@ -1,8 +1,9 @@
-#include <math.h>
-#include "gauss_inverse.h"
+#pragma once
+
+double fabs(double);
 
 // Поменять местами элемент lhs и rhs
-static void swap(double* const lhs, double* const rhs) {
+static inline void swap(double* const lhs, double* const rhs) {
     double temp = *lhs;
     *lhs = *rhs;
     *rhs = temp;
@@ -11,7 +12,7 @@ static void swap(double* const lhs, double* const rhs) {
 #define A(i, j) A[(i) * n + (j)]
 #define E(i, j) A_inversed[(i) * n + (j)]
 
-int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR) {
+static inline int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR) {
     // итераторы
     int i, j;
     const int n2 = n & (~1);
@@ -101,3 +102,4 @@ int gauss_inverse(double * A, double* A_inversed, const int n, double ERROR) {
     }
     return 0;
 }
+

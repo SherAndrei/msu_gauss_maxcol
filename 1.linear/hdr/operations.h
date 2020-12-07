@@ -1,6 +1,6 @@
-#include "operations.h"
+#pragma once
 
-void extract(double* lhs, double *rhs, const int v, const int h) {
+static inline void extract(double* lhs, double *rhs, const int v, const int h) {
     int i, j;
     const int v3 = (v / 3) * 3;
     const int h3 = (h / 3) * 3;
@@ -45,9 +45,9 @@ void extract(double* lhs, double *rhs, const int v, const int h) {
 
 // a size: av * ah
 // b size: bv * bh
-int multiply(const double* const a, const int av, const int ah,
-             const double* const b, const int bv, const int bh,
-             double* const c) {
+static inline int multiply(const double* const a, const int av, const int ah,
+                           const double* const b, const int bv, const int bh,
+                           double* const c) {
     int r, t, q;
     // ближайшее число делящееся на 3, меньше, чем соответствующие
     const int av3 = (av / 3) * 3;
@@ -171,9 +171,9 @@ int multiply(const double* const a, const int av, const int ah,
 }
 
 // c -= a * b
-int multiply_and_extract(const double* const a, const int av, const int ah,
-                         const double* const b, const int bv, const int bh,
-                         double* const c) {
+static inline int multiply_and_extract(const double* const a, const int av, const int ah,
+                                       const double* const b, const int bv, const int bh,
+                                       double* const c) {
     int r, t, q;
     // ближайшее число делящееся на 3, меньше, чем соответствующие
     const int av3 = (av / 3) * 3;

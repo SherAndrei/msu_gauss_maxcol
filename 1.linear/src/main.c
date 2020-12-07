@@ -7,12 +7,20 @@
 #include <sched.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
-#include "matrix.h"
 #include "error.h"
 #include "print.h"
 #include "fill.h"
 #include "solve.h"
+
+static inline double* alloc_matrix(const int size) {
+    return (double*) malloc (size * sizeof(double));
+}
+
+static inline void free_matrix(double* matrix) {
+    free(matrix);
+}
 
 int main(int argc, const char* argv[]) {
     int errcode = 0;

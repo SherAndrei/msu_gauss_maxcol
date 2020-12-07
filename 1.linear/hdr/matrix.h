@@ -1,9 +1,16 @@
-#include "matrix.h"
+#pragma once
+#include <stdlib.h>
+#include <string.h>
 
 double fabs(double);
 
+static inline void copy(const double* source,
+                        double* dest, const int v, const int h) {
+    memcpy(dest, source, v * h * sizeof(double));
+}
+
 // максимальная столбцовая норма матрицы
-double  norm(const double* const A, const int n) {
+static inline double  norm(const double* const A, const int n) {
     int i, j;
     double max = 0., current = 0.;
     for (i = 0; i < n; i++) {
@@ -18,7 +25,7 @@ double  norm(const double* const A, const int n) {
 }
 
 
-void identity(double* const matr, const int dim) {
+static inline void identity(double* const matr, const int dim) {
     int i, j;
     for (i = 0; i < dim; i++)
         for (j = 0; j < dim; j++)
@@ -30,3 +37,4 @@ void null(double* const matr, const int v, const int h) {
     for (i = 0; i < v * h; i++)
         matr[i] = 0.;
 }
+
