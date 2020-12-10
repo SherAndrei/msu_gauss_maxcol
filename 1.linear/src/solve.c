@@ -1,6 +1,5 @@
 #include "solve.h"
 #include "matrix.h"
-#include "error.h"
 #include "gauss_inverse.h"
 #include "operations.h"
 
@@ -46,8 +45,8 @@ int solve(int n, int m,
         // A_{j, j} --> V1
         // V_min = (A_{j, j})^(-1)
         // min = ||V_min||
-        copy(pa, V1, av, ah);
-        identity(V3, ah);
+        // copy(pa, V1, av, ah);
+        // identity(V3, ah);
         for (r = 0; r < av; r++) {
             for (q = 0; q < ah; q++) {
                 V1[r * ah + q] = pa[r * ah + q];

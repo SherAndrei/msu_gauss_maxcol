@@ -1,5 +1,5 @@
 #!/bin/bash
-DATA="./tests/files"
+DATA="./../tests/files"
 prog="./a.out"
 
 if [[ -x ${prog} ]]; then

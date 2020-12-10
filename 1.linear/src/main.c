@@ -24,7 +24,7 @@ static inline void free_matrix(double* matrix) {
 
 int main(int argc, const char* argv[]) {
     int errcode = 0;
-    int n, m, r, s;
+    int n, m, r, s, i;
     // Solving AX = B
     // V1, V2, V3 вспомогательные матрицы
     double *A  = NULL, *B  = NULL, *X  = NULL,
@@ -40,7 +40,7 @@ int main(int argc, const char* argv[]) {
     sched_setaffinity(getpid(), sizeof(cpu), &cpu);
 
     printf(" Usage: [");
-    for (int i = 1; i < argc - 1; i++)
+    for (i = 1; i < argc - 1; i++)
         printf("%s, ", argv[i]);
     printf("%s]\n", argv[argc - 1]);
 
@@ -79,8 +79,10 @@ int main(int argc, const char* argv[]) {
 
     fill_right_part(A, B, n, m);
 
-    print_matrix(A, n, n, m, r);
-    print_matrix(B, n, 1, m, r);
+    if (r > 0) {
+        print_matrix(A, n, n, m, r);
+        print_matrix(B, n, 1, m, r);
+    }
 
     t_solving = clock();
     errcode = solve(n, m, A, B, X, V1, V2, V3);
@@ -90,8 +92,10 @@ int main(int argc, const char* argv[]) {
         free_matrix(V1), free_matrix(V2), free_matrix(V3);
         return error(5);
     }
-    printf(" Result:\n");
-    print_matrix(X, n, 1, m, r);
+    if (r > 0) {
+        printf(" Result:\n");
+        print_matrix(X, n, 1, m, r);
+    }
     if (s == 0)
         fill(A, n, m, 0, argv[5], &errcode);
     else
