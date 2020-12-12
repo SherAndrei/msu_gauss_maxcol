@@ -7,6 +7,9 @@
 #include <sys/resource.h>
 #include <stdlib.h>
 
+#define LOG_DBL(x) printf("%s: %f\n", #x, x)
+#define LOG_INT(x) printf("%s: %d\n", #x, x)
+
 static inline double get_time() {
   struct rusage buf;
   getrusage(RUSAGE_THREAD, &buf);

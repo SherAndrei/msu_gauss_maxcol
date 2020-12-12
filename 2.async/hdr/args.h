@@ -2,37 +2,39 @@
 #define ARGS_H
 #include <pthread.h>
 
-struct Time {
+typedef struct TimeData {
     double cpu;
     double wall_clock;
-};
+} time_data_t;
 
-struct MainData {
+typedef struct MainData {
     int s;
     const char* filename;
-};
+} main_data_t;
 
-struct ThreadData {
+typedef struct ThreadData {
     int k;
     int p;
+    int n_workable_lines;
     int result;
     int error;
-};
+    double norm;
+} thread_data_t;
 
-struct SolveData {
+typedef struct SolveData {
     double* A;
     double* B;
     double* X;
     int n;
     int m;
-};
+} solve_data_t;
 
-struct Args {
+typedef struct Args {
     pthread_barrier_t* p_barrier;
-    struct Time       time;
+    struct TimeData   time_data;
     struct ThreadData thrd_data;
     struct MainData   main_data;
     struct SolveData  slve_data;
-};
+} args_t;
 
 #endif  // ARGS_H

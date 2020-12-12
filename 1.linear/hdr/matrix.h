@@ -9,6 +9,7 @@ static inline void copy(const double* source,
     memcpy(dest, source, v * h * sizeof(double));
 }
 
+// нельзя считать для всей матрицы! другое хранение памяти
 // максимальная столбцовая норма матрицы
 static inline double  norm(const double* const A, const int n) {
     int i, j;

@@ -32,10 +32,10 @@ $(EXE): $(OBJS)
 $(OBJ)/main.o: $(SRC)/main.c $(HDRS) | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
-$(OBJ)/thread_func.o: $(SRC)/thread_func.c $(HDR)/thread_func.h $(HDR)/fill.h $(HDR)/args.h $(HDR)/solve.h $(HDR)/gauss_inverse.h | $(OBJ)
+$(OBJ)/thread_func.o: $(SRC)/thread_func.c $(HDR)/thread_func.h $(HDR)/fill.h $(HDR)/args.h $(HDR)/solve.h $(HDR)/matrix.h $(HDR)/gauss_inverse.h $(HDR)/synchronise.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
-$(OBJ)/fill.o: $(SRC)/fill.c $(HDR)/fill.h $(HDR)/args.h $(HDR)/error.h | $(OBJ)
+$(OBJ)/fill.o: $(SRC)/fill.c $(HDR)/fill.h $(HDR)/args.h $(HDR)/error.h $(HDR)/synchronise.h | $(OBJ)
 	$(CC) -c $< -o $@ $(CFLAGS)  
 
 $(OBJ)/error.o : $(SRC)/error.c $(HDR)/error.h | $(OBJ)

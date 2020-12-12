@@ -68,8 +68,9 @@ int main(int argc, const char* argv[]) {
         a[k].thrd_data.p = p;
         a[k].thrd_data.error  = 0;
         a[k].thrd_data.result = 0;
-        a[k].time.cpu = 0.;
-        a[k].time.wall_clock = 0.;
+        a[k].thrd_data.norm   = 0.;
+        a[k].time_data.cpu = 0.;
+        a[k].time_data.wall_clock = 0.;
         a[k].slve_data.A = A;
         a[k].slve_data.B = B;
         a[k].slve_data.X = X;
@@ -91,18 +92,19 @@ int main(int argc, const char* argv[]) {
     }
 
     if (a[0].thrd_data.error != 0) {
+        k = a[0].thrd_data.error;
         free_matrix(A);
         free_matrix(B);
         free_matrix(X);
         free(a);
         free(tids);
-        return -1;
+        return error(k);
     } else {
         if (r > 0) {
             print_matrix(A, n, n, m, r);
             print_matrix(B, n, 1, m, r);
         }
-        printf("Norm: %e\n", norm(A, n));
+        printf("Norm: %e\n", a[0].thrd_data.norm);
     }
 
     free_matrix(A);

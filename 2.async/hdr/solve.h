@@ -1,15 +1,19 @@
 #ifndef SOLVE_H
 #define SOLVE_H
 #include <stdlib.h>
+#include "matrix.h"
 #include "thread_func.h"
 #include "gauss_inverse.h"
 
-static inline int solve(struct SolveData s_data, struct ThreadData t_data /* TODO */) {
+#define eps (1e-15)
+
+static inline int solve(struct SolveData s_data, struct ThreadData* p_t_data,
+                        double* V1, double* V2, double* V3) {
     // итераторы
-    int i, j;
+    int i, j, r, q;
     // данные потока
-    int th_num = t_data.k;
-    int n_thrd = t_data.p;
+    int th_num = p_t_data->k;
+    int n_thrd = p_t_data->p;
     // данные задачи
     const int n = s_data.n;
     const int m = s_data.m;
@@ -17,23 +21,29 @@ static inline int solve(struct SolveData s_data, struct ThreadData t_data /* TOD
     const int l = n - k * m;
     // длина/ширина текущего блока
     int av, ah;
-    // диапозон работы потока
-    // вспомогательные блоки
-    double *V1, *V2, *V3;
-    double *pa = s_data.A, *pi, *pj;
-
-    (void) av, (void)ah, (void)pi, (void)pj, (void)j;
+    double * const A = s_data.A;
+    double *pa, *pi, *pj;
+    // счетчик необратимых матриц в столбце
+    int c = 0;
+    double ERROR = full_norm(p_t_data, s_data) * eps;
+    (void) av, (void)ah, (void)pi, (void)pj, (void)j, (void) r, (void) q, (void) c;
     (void) th_num, (void)n_thrd, (void)i, (void)j, (void)pa, (void) l;
+    (void) V1, (void) V2, (void) V3, (void) A;
+    (void) ERROR;
+    // LOG_DBL(ERROR);
+    // for (j = 0; j * m < n; j++) {
+    //     av = ah = j < k ? m : l;
+    //     pa = A + th_num * n * m + j * av * m;
 
-    V1 = (double*)malloc(m * m);
-    V2 = (double*)malloc(m * m);
-    V3 = (double*)malloc(m * m);
-    if (!V1 || !V2 || !V3) {
-        // TODO error
-        free(V1), free(V2), free(V3);
-    }
+    //     // copy && identity
+    //     for (r = 0; r < av; r++) {
+    //         for (q = 0; q < ah; q++) {
+    //             V1[r * ah + q] = pa[r * ah + q];
+    //             V3[r * ah + q] = (r == q);
+    //         }
+    //     }
+    // }
 
-    free(V1), free(V2), free(V3);
     return 0;
 }
 

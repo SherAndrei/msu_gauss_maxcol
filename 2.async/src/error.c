@@ -3,7 +3,7 @@
 
 int error(const int error) {
     switch (error) {
-    case 1: {
+    case INV_INPUT: {
         printf("Usage: ./a.out n p m r s (filename)\n"
                 "\t n - matrix dim:       \t1, 2 ...  \n"
                 "\t p - thread amount:    \t1, 2 ... \n"
@@ -13,19 +13,19 @@ int error(const int error) {
                 "\t if s == 0 input file's name\n");
         break;
     }
-    case 2: {
+    case ALLOC_ERROR: {
         printf("Malloc error!\n");
         break;
     }
-    case 3: {
+    case OPEN_FILE_ERR: {
         printf("Error opening file!\n");
         break;
     }
-    case 4: {
+    case INV_FILE_DATA: {
         printf("Incorrect input or not enough data!\n");
         break;
     }
-    case 5: {
+    case INAPL_ALG: {
         printf("Algotithm is inaplicable!\n");
         break;
     }
