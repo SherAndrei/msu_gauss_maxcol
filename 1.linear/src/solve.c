@@ -27,7 +27,7 @@ int solve(int n, int m,
     // остаток
     int l = n - k * m;
     // погрешность
-    double ERROR = (norm(A, n) * eps);
+    double ERROR = (full_norm(A, n, m) * eps);
     // минимальная норма обратной матрицы
     double min = 0.;
     // строчка с минимальной матрицей
@@ -45,8 +45,6 @@ int solve(int n, int m,
         // A_{j, j} --> V1
         // V_min = (A_{j, j})^(-1)
         // min = ||V_min||
-        // copy(pa, V1, av, ah);
-        // identity(V3, ah);
         for (r = 0; r < av; r++) {
             for (q = 0; q < ah; q++) {
                 V1[r * ah + q] = pa[r * ah + q];
@@ -74,11 +72,9 @@ int solve(int n, int m,
                     V2[r * ah + q] = (r == q);
                 }
             }
-            // copy(pi, V1, av, ah);
-            // identity(V2, av);
             if (gauss_inverse(V1, V2, av, ERROR) == 0) {
                 current = norm(V2, av);
-                if (current - min > ERROR) {
+                if (current < min) {
                     pj = V2;
                     V2 = V3;
                     V3 = pj;
