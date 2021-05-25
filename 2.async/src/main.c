@@ -24,7 +24,6 @@ int main(int argc, const char* argv[]) {
     int n, p, m, r, s, k;
     struct Args * a;
     pthread_t* tids;
-    pthread_barrier_t barrier;
     double *A = 0;
     double *B = 0, *X = 0;
 
@@ -60,24 +59,21 @@ int main(int argc, const char* argv[]) {
     if (s == 0)
         filename = argv[6];
 
-    pthread_barrier_init(&barrier, NULL, p);
-
     for (k = 0; k < p; k++) {
-        a[k].p_barrier = &barrier;
         a[k].thrd_data.k = k;
         a[k].thrd_data.p = p;
         a[k].thrd_data.error  = 0;
         a[k].thrd_data.result = 0;
-        a[k].thrd_data.norm   = 0.;
-        a[k].time_data.cpu = 0.;
-        a[k].time_data.wall_clock = 0.;
         a[k].slve_data.A = A;
         a[k].slve_data.B = B;
         a[k].slve_data.X = X;
         a[k].slve_data.m = m;
         a[k].slve_data.n = n;
+        a[k].main_data.r = r;
         a[k].main_data.s = s;
         a[k].main_data.filename = filename;
+        a[k].begin = a + 0;
+        a[k].end   = a + p;
     }
 
     for (k = 1; k < p; k++) {
@@ -102,9 +98,8 @@ int main(int argc, const char* argv[]) {
     } else {
         if (r > 0) {
             print_matrix(A, n, n, m, r);
-            print_matrix(B, n, 1, m, r);
+            // print_matrix(B, n, 1, m, r);
         }
-        printf("Norm: %e\n", a[0].thrd_data.norm);
     }
 
     free_matrix(A);

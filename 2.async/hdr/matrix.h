@@ -66,3 +66,16 @@ static inline void null(double* const matr, const int v, const int h) {
         matr[i] = 0.;
 }
 
+static inline double  norm(const double* const A, const int n) {
+    int i, j;
+    double max = 0., current = 0.;
+    for (i = 0; i < n; i++) {
+        current = 0.;
+        for (j = 0; j < n; j++) {
+            current += fabs(A[j * n + i]);
+        }
+        if (current > max)
+            max = current;
+    }
+    return max;
+}

@@ -14,7 +14,7 @@ CFLAGS  := -mfpmath=sse -fstack-protector-all -W -Wall -Wextra -Wunused -Wcast-a
 		  -Werror -pedantic -pedantic-errors -Wfloat-equal -Wpointer-arith -Wformat-security \
 		  -Wmissing-format-attribute -Wformat=1 -Wwrite-strings -Wcast-align -Wno-long-long  \
 		  -Wcast-qual -Wno-suggest-attribute=format -Wpedantic -Werror=declaration-after-statement -I$(HDR) \
-		  -Wmissing-declarations -O3 -g -pg
+		  -Wmissing-declarations 
 LDFLAGS := # -fsanitize=address -fno-omit-frame-pointer -static-libasan
 LIBS    := -lm
 
@@ -23,11 +23,6 @@ EXE   := ./a.out
 HDRS  := $(wildcard $(HDR)/*.h)
 SRCS  := $(wildcard $(SRC)/*.c)
 OBJS  := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))	
-
-# $@ - the left side of the :
-# $^ - the right side of the :
-# $< - the first item in the dependencies list
-# -c flag says to generate the object file
 
 $(EXE): $(OBJS)
 	$(CC) $^ -o $@ $(LIBS) $(LDFLAGS) 
@@ -64,8 +59,8 @@ $(OBJ):
 clean:
 	$(RMDIR) $(OBJ) $(EXE)
 
-# debug: CFLAGS += -g -O0 -D DEBUG
-# debug: $(EXE) 
+debug: CFLAGS += -g -O0 -D DEBUG
+debug: $(EXE) 
 
-# release: CFLAGS += -O3 -D RELEASE
-# release: $(EXE)
+release: CFLAGS += -O3 -D RELEASE
+release: $(EXE)

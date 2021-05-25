@@ -8,6 +8,7 @@ typedef struct TimeData {
 } time_data_t;
 
 typedef struct MainData {
+    int r;
     int s;
     const char* filename;
 } main_data_t;
@@ -29,12 +30,21 @@ typedef struct SolveData {
     int m;
 } solve_data_t;
 
+typedef struct Assist {
+    double* V1;
+    double* V2;
+    double* V3;
+    double* Buffer;
+} assist_t;
+
 typedef struct Args {
-    pthread_barrier_t* p_barrier;
-    struct TimeData   time_data;
-    struct ThreadData thrd_data;
-    struct MainData   main_data;
-    struct SolveData  slve_data;
+    time_data_t   time_data;
+    thread_data_t thrd_data;
+    main_data_t   main_data;
+    solve_data_t  slve_data;
+    assist_t assist;
+    struct Args* begin;
+    struct Args* end;
 } args_t;
 
 #endif  // ARGS_H
